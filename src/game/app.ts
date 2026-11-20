@@ -73,6 +73,7 @@ export class App {
   private liveRun: LiveRun | null = null;
   private lastCam = 0;
   private initialsSlideUsed = false;
+  private countdownStep = 0;
   reducedMotion = false;
   frozenNow: number | null = null;
   /** Scripted input for screenshot scenes; null = the real keyboard/mouse. */
@@ -148,6 +149,8 @@ export class App {
       this.lastGate = -1;
       this.result = null;
       this.input.clear();
+      this.countdownStep = 0;
+      this.synth.play('beep');
     }
     if (s === 'run') {
       this.input.clear();
@@ -197,8 +200,10 @@ export class App {
         break;
       case 'countdown': {
         const step = Math.floor(this.booth.elapsed / 1000);
-        const prev = Math.floor((this.booth.elapsed - 1000 / 60) / 1000);
-        if (step !== prev && step < 3) this.synth.play('beep');
+        if (step > this.countdownStep && step < 3) {
+          this.countdownStep = step;
+          this.synth.play('beep');
+        }
         break;
       }
       case 'run':
@@ -425,6 +430,9 @@ export class App {
         ctx.fillRect(0, 0, W, H);
       }
       if (state === 'countdown') drawCountdown(ctx, this.booth.elapsed, this.rival.record.initials);
+      if (state === 'run' && this.booth.elapsed < 260) {
+        drawCountdown(ctx, TIMERS.countdown + this.booth.elapsed, this.rival.record.initials);
+      }
       if (state === 'results' && this.result) this.drawResult(now);
       if (state === 'initials' && this.result) {
         drawInitials(ctx, { letters: this.letters, slot: this.slot, finishTick: this.result.record.finishTick, dnf: this.result.record.dnf, idleFrac: Math.min(1, (this.clock() - this.booth.lastInputAt) / TIMERS.initialsIdle) });
