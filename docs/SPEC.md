@@ -91,7 +91,7 @@ Roughly 32 obstacles total. Minimum gap between obstacle groups: 220 px (about 0
 | Hurdle | 24 × 40 | Jump (tap is enough) | 18–54 px |
 | Double Hurdle | two Hurdles, 150 px apart | Jump, land, Jump | each Hurdle judged separately |
 | Low Bar | 120 wide, underside at 30 px | Slide (hold) | 12–48 px |
-| Pit | 120 wide gap in the floor (runner is supported while any part of its box is over floor) | Held Jump (a tap lands in the Pit) | 6–36 px |
+| Pit | 130 wide gap in the floor (runner is supported while any part of its box is over floor) | Held Jump (a tap lands in the Pit) | 0–36 px |
 | Switch Beam | 24 wide; LOW = 0–40 px (Jump) or HIGH = underside at 30 px (Slide) | Read, then Jump or Slide | as Hurdle or Low Bar |
 
 Switch Beam rule: trigger line 160 px before the beam. Before the runner's front crosses it, the beam is drawn strobing between both positions every 6 Ticks (unreadable on purpose). On crossing, it locks: `LOW if tickAtTrigger is even, else HIGH`. Reaction distance is constant; reaction time is about 27 Ticks (0.44 s) at base speed and about 20 Ticks (0.33 s) at max Flow. Each simulation (player, Ghost) has its own beam locks.
