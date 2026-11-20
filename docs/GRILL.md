@@ -77,7 +77,7 @@ Context: Cloud9 x JetBrains "Sky's The Limit" 2026, Category 3 (Event Mini Game)
 ✅ Accepted.
 
 **Q3.5 Is the Switch Beam fair, given players reach it at different times?**
-➡️ Yes: its state is a pure function of the global tick, and the telegraph always appears a fixed time before the beam's decision point. Everyone gets the same reaction window; only what they see differs. That is what a reaction test is.
+➡️ Yes. Before a runner reaches its trigger line (a fixed distance ahead of the beam) the beam strobes between high and low and cannot be read; when the runner crosses the line it locks to one position, chosen from the Tick count at that moment. Everyone gets the same reaction *distance*; a runner carrying more Flow gets less reaction *time*, which is the price of speed. It depends only on simulation state, so a Ghost replay sees exactly what its player saw.
 ✅ Accepted.
 
 ---
@@ -138,6 +138,10 @@ Context: Cloud9 x JetBrains "Sky's The Limit" 2026, Category 3 (Event Mini Game)
 
 **Q5.8 How do we prove it stays responsive in sustained use?**
 ➡️ A headless endurance test that runs 1000 complete bot runs through the simulation and the booth state machine, asserting replay equality, bounded storage, and that every run ends. Plus a manual 30-minute soak with the leaderboard window open (documented in the README as a measured result only if actually run).
+✅ Accepted.
+
+**Q5.9 Does the Leaderboard Monitor show the Run while it happens?**
+➡️ Yes. The game broadcasts each Split as it is crossed, so the queue watching the second monitor sees "CHALLENGER vs ABC" with live Deltas filling in gate by gate. Spectators are the next players; this is what keeps the line engaged.
 ✅ Accepted.
 
 ---
