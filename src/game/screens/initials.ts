@@ -45,7 +45,8 @@ export function drawInitials(ctx: CanvasRenderingContext2D, v: InitialsView): vo
       ctx.textAlign = 'left';
     }
   }
-  label(ctx, '↑ ↓ CHANGE LETTER   ·   SPACE / → / CLICK NEXT   ·   ← BACK   ·   RIGHT-CLICK NEXT LETTER', 64, 580, C.text2, 15);
+  label(ctx, '↑ / ↓ / RIGHT-CLICK CHANGE LETTER   ·   SPACE / → / LEFT-CLICK CONFIRM   ·   ← BACK', 64, 565, C.text2, 15);
+  label(ctx, 'TWO BUTTONS: HOLD ↓ AND PRESS ↑ TO CONFIRM', 64, 595, C.text2, 15);
   ctx.fillStyle = 'oklch(0.95 0.01 250 / 0.08)';
   ctx.fillRect(64, 620, 420, 4);
   ctx.fillStyle = C.text3;

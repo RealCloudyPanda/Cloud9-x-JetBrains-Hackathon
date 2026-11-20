@@ -4,7 +4,7 @@ const JUMP_KEYS = new Set(['ArrowUp', 'KeyW', 'Space']);
 const SLIDE_KEYS = new Set(['ArrowDown', 'KeyS']);
 const MODIFIERS = /^(Alt|Control|Meta|Shift)(Left|Right)$/;
 
-export type PressKind = 'jump' | 'slide' | 'left' | 'right' | 'confirm' | 'other';
+export type PressKind = 'jump' | 'slide' | 'slide-release' | 'left' | 'right' | 'confirm' | 'other';
 
 export interface Press {
   kind: PressKind;
@@ -24,7 +24,6 @@ export class Input {
   private queue: Press[] = [];
   /** Called synchronously on any press (used to unlock audio inside the gesture). */
   onAnyPress: (() => void) | null = null;
-  onBlur: (() => void) | null = null;
 
   constructor(target: HTMLElement) {
     window.addEventListener('keydown', (e) => {
@@ -33,11 +32,10 @@ export class Input {
       this.keys.add(e.code);
       this.push(this.kindOf(e.code), e.code, e.ctrlKey || e.metaKey, e.shiftKey);
     });
-    window.addEventListener('keyup', (e) => this.keys.delete(e.code));
-    window.addEventListener('blur', () => {
-      this.clear();
-      this.onBlur?.();
+    window.addEventListener('keyup', (e) => {
+      if (this.keys.delete(e.code) && SLIDE_KEYS.has(e.code)) this.releaseSlide(e.code);
     });
+    window.addEventListener('blur', () => this.clear());
     target.addEventListener('mousedown', (e) => {
       e.preventDefault();
       if (e.button === 0) this.buttons |= MASK_JUMP;
@@ -46,7 +44,10 @@ export class Input {
     });
     window.addEventListener('mouseup', (e) => {
       if (e.button === 0) this.buttons &= ~MASK_JUMP;
-      if (e.button === 2) this.buttons &= ~MASK_SLIDE;
+      if (e.button === 2 && (this.buttons & MASK_SLIDE) !== 0) {
+        this.buttons &= ~MASK_SLIDE;
+        this.releaseSlide('Mouse2');
+      }
     });
     target.addEventListener('contextmenu', (e) => e.preventDefault());
   }
@@ -63,7 +64,11 @@ export class Input {
   private push(kind: PressKind, code: string, ctrl: boolean, shift: boolean): void {
     this.queue.push({ kind, code, ctrl, shift, mask: this.mask });
     if (this.queue.length > 32) this.queue.shift();
-    this.onAnyPress?.();
+    if (kind !== 'slide-release') this.onAnyPress?.();
+  }
+
+  private releaseSlide(code: string): void {
+    if ((this.mask & MASK_SLIDE) === 0) this.push('slide-release', code, false, false);
   }
 
   get mask(): number {

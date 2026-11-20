@@ -71,7 +71,7 @@ export class App {
   private attractDrawer = new GhostDrawer();
   private channel = openChannel();
   private lastCam = 0;
-  private slideStartPending = false;
+  private initialsSlideUsed = false;
   reducedMotion = false;
   frozenNow: number | null = null;
   /** Scripted input for screenshot scenes; null = the real keyboard/mouse. */
@@ -85,7 +85,6 @@ export class App {
     this.attract = new GhostRunner(COURSE, this.rival.record);
     this.applySettings();
     input.onAnyPress = () => this.synth.unlock();
-    input.onBlur = () => { this.slideStartPending = false; };
   }
 
   applySettings(): void {
@@ -112,7 +111,6 @@ export class App {
   }
 
   private onEnter(s: BoothState, from: BoothState): void {
-    this.slideStartPending = false;
     if (s === 'countdown') {
       this.rival = this.chooseRival(this.booth.champion);
       if (this.meta.settings.forceHouse) {
@@ -133,8 +131,10 @@ export class App {
       this.send({ type: 'run-started', rivalInitials: this.rival.record.initials, rivalSplits: this.rival.record.splits });
     }
     if (s === 'initials') {
+      this.input.clear();
       this.letters = ['A', 'A', 'A'];
       this.slot = 0;
+      this.initialsSlideUsed = false;
     }
     if (s === 'attract') {
       if (from === 'run' || from === 'countdown') this.send({ type: 'board-changed' });
@@ -167,16 +167,9 @@ export class App {
           this.attractDrawer.reset();
         }
         for (const p of presses) {
-          if (p.ctrl && p.shift) continue;
-          if (p.kind === 'slide') {
-            this.slideStartPending = true;
-            continue;
-          }
+          if ((p.ctrl && p.shift) || p.kind === 'slide') continue;
           this.booth.press({ champion: p.kind === 'jump' && (p.mask & MASK_SLIDE) !== 0 });
           break;
-        }
-        if (this.slideStartPending && (this.input.mask & MASK_SLIDE) === 0) {
-          this.booth.press();
         }
         break;
       case 'countdown': {
@@ -189,7 +182,7 @@ export class App {
         this.tickRun(now);
         break;
       case 'results':
-        if (presses.some((p) => !(p.ctrl && p.shift))) this.booth.press();
+        if (presses.some((p) => !(p.ctrl && p.shift) && p.kind !== 'slide-release')) this.booth.press();
         break;
       case 'initials':
         for (const p of presses) {
@@ -288,13 +281,24 @@ export class App {
   initialsPress(p: Press): void {
     this.booth.touch();
     const code = p.code;
-    if (code === 'ArrowUp' || code === 'KeyW' || code === 'Mouse2') this.letters[this.slot] = cycleLetter(this.letters[this.slot], code === 'Mouse2' ? 1 : -1);
-    else if (code === 'ArrowDown' || code === 'KeyS') this.letters[this.slot] = cycleLetter(this.letters[this.slot], 1);
-    else if (code === 'ArrowLeft' || code === 'Backspace') this.slot = Math.max(0, this.slot - 1);
-    else if (code === 'Space' || code === 'ArrowRight' || code === 'Enter' || code === 'Mouse0') {
+    if (p.kind === 'slide-release') {
+      if (!this.initialsSlideUsed && code !== 'Mouse2') this.letters[this.slot] = cycleLetter(this.letters[this.slot], 1);
+      this.initialsSlideUsed = false;
+      return;
+    }
+    if (p.kind === 'slide') {
+      this.initialsSlideUsed = false;
+      if (code === 'Mouse2') this.letters[this.slot] = cycleLetter(this.letters[this.slot], 1);
+      return;
+    }
+    const twoButtonConfirm = p.kind === 'jump' && (p.mask & MASK_SLIDE) !== 0;
+    if (twoButtonConfirm) this.initialsSlideUsed = true;
+    if (twoButtonConfirm || code === 'Space' || code === 'ArrowRight' || code === 'Enter' || code === 'NumpadEnter' || code === 'Mouse0') {
       if (this.slot < 2) this.slot++;
       else this.submitInitials(false);
-    } else if (/^Key[A-Z]$/.test(code)) {
+    } else if (code === 'ArrowUp' || code === 'KeyW') this.letters[this.slot] = cycleLetter(this.letters[this.slot], -1);
+    else if (code === 'ArrowLeft' || code === 'Backspace') this.slot = Math.max(0, this.slot - 1);
+    else if (/^Key[A-Z]$/.test(code)) {
       this.letters[this.slot] = code.slice(3);
       if (this.slot < 2) this.slot++;
     }
