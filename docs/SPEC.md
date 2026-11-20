@@ -41,11 +41,11 @@ On Attract, holding Slide and pressing Jump starts a Run against today's Champio
 
 ### 2.3 Booth Operator
 
-1. Online once: `npm install`.
+1. Online once: `npm ci`.
 2. At the booth: `npm run booth` (builds, serves on `http://localhost:4173`).
 3. Open `http://localhost:4173/?booth=1` full-screen on the player monitor (F11). Open `http://localhost:4173/leaderboard.html` full-screen on the second monitor.
 4. Start of day: `Ctrl+Shift+O` opens the Operator Panel → "Start new day" (confirm). Close with `Esc`.
-5. If anything looks wrong: reload the page. All state is in localStorage, so a reload loses nothing but the Run in progress.
+5. If anything looks wrong, leave full screen and reload from the browser toolbar. Completed Runs are saved in localStorage.
 
 ---
 
@@ -214,10 +214,11 @@ One sentence, picked by rules, in this order:
 
 | Key (localStorage) | Content | Bound |
 |---|---|---|
-| `ghostrelay:v1:runs:<YYYY-MM-DD>` | Array of GhostRecord for that day | Keep inputs for the latest 30 runs and today's top 10; older records keep summary only (inputs dropped). Max 500 records/day. |
+| `ghostrelay:v1:runs:<YYYY-MM-DD>` | Array of GhostRecord for that day | Keep inputs for the latest 30 runs and today's top 10. Store up to 500 records, preserving the top 10. |
 | `ghostrelay:v1:meta` | `{ currentDay, runCounter, relayStreak, settings: { sound, shake } }` | Small. |
+| `ghostrelay:v1:live` | Current rival and cumulative gate Deltas for the active board, with the timestamp of the last update | One active Run. Cleared on finish or abort and treated as stale after 30 seconds without an update. |
 
-BroadcastChannel `ghost-relay` messages: `run-started { rivalInitials, rivalSplits }`, `split { gateIndex, tick, delta }`, `run-finished { record summary }`, `board-reset`. The Leaderboard Monitor also listens for `storage` events and re-reads on `visibilitychange`, so it recovers even if a message is missed. Writes are wrapped in try/catch; on quota error the oldest day is deleted and the write retried once.
+BroadcastChannel `ghost-relay` prompts the Leaderboard Monitor to re-read storage after starts, splits, finishes, initials, and resets. The monitor also reads on load, `storage` events, `visibilitychange`, and a five-second timer. Saved scores retry once after deleting the oldest archived board on quota error.
 
 ---
 
@@ -292,9 +293,9 @@ Category brief checklist: fast (≈30 s Run, < 60 s Turn) ✔ · replayable (fix
 | Time | Picture | Voice-over / on-screen text |
 |---|---|---|
 | 0:00–0:10 | Booth: two people, game monitor and leaderboard monitor side by side. | "At a booth, the best rival isn't a high score. It's the person who just played." Title card: GHOST RELAY. |
-| 0:10–0:35 | Player A's full Run from Attract, screen capture. | "Two buttons: jump, slide. No tutorial. Thirty seconds." |
+| 0:10–0:35 | Player A starts from Attract, then cut to highlights and their real finish. | "Two buttons: jump, slide. No tutorial. Thirty seconds." |
 | 0:35–1:10 | Player B races A's Ghost. Split chips pop at each gate. Results: "You lost 0.42 s at Gate 3: 2 hits on the Switch Beam." | "Every run becomes the next player's ghost, and the game tells you exactly where you lost." |
-| 1:10–1:30 | B presses any key, runs again, beats the ghost. Initials entry. | "Instant restart. Learn the gate. Take it back." |
+| 1:10–1:30 | B enters initials, the booth returns to Attract, and the next player starts against B's Ghost. | "The relay is ready for the next player." |
 | 1:30–1:55 | Second monitor updating live; laptop Wi-Fi menu shown off. Operator Panel briefly. | "The leaderboard runs on a second monitor with no internet. Idle screens reset themselves." |
 | 1:55–2:20 | Code and terminal: test run printing the 2 000-replay and 1 000-turn results (real output). | "Ghosts are just recorded inputs, replayed through a deterministic simulation. Tests prove every replay matches." |
 | 2:20–2:50 | Owner's own WebStorm / Junie footage. | TODO (owner): describe your real workflow; see `AI_SHOWCASE.md`. |
