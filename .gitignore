@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+coverage/
+*.tsbuildinfo
+
+# test / tooling artifacts
+playwright-report/
+test-results/
+.vite/
+
+# logs
+*.log
+npm-debug.log*
+
+# OS / editor noise (keep .idea/ tracked only if the owner chooses to commit it)
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp
+
+# secrets never belong here (the app needs none)
+.env
+.env.*
