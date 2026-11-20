@@ -21,6 +21,10 @@ export class RunState {
     this.prevY = this.sim.r.y;
     record(this.rec, this.sim.tick, mask);
     step(this.sim, mask);
+    if (this.sim.finished) {
+      this.prevX = this.sim.r.x;
+      this.prevY = this.sim.r.y;
+    }
     for (const e of this.sim.events) if (e.type === 'hit') this.hitAt[e.obstacle] = now;
   }
 

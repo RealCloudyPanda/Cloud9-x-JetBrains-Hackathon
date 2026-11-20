@@ -397,7 +397,6 @@ export class App {
 
     if (showRun) {
       const run = this.run!;
-      // finish slow-mo: ease the camera for 250 ms after the line
       const x = run.x(alpha);
       const camX = x - CAMERA_X / ZOOM;
       const camDx = camX - this.lastCam;
