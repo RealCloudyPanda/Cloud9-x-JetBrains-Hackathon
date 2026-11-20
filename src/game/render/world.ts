@@ -18,7 +18,7 @@ export interface WorldView {
   now: number;
 }
 
-const BAR_DRAW_TOP = 236;
+const BAR_DRAW_TOP = 512;
 
 function neonRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, stroke: string, glow: string): void {
   ctx.fillStyle = glow;
@@ -40,6 +40,15 @@ function drawHurdle(ctx: CanvasRenderingContext2D, sx: number, stroke: string, g
 function drawBar(ctx: CanvasRenderingContext2D, sx: number, w: number, stroke: string, glow: string): void {
   const top = BAR_DRAW_TOP;
   const bottom = GROUND_Y - BAR_UNDERSIDE;
+  // cables to the rafters
+  ctx.strokeStyle = 'oklch(0.86 0.08 300 / 0.35)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(sx + 6, 0);
+  ctx.lineTo(sx + 6, top);
+  ctx.moveTo(sx + w - 6, 0);
+  ctx.lineTo(sx + w - 6, top);
+  ctx.stroke();
   neonRect(ctx, sx, top, w, bottom - top, stroke, glow);
   // hazard ticks on the underside so the gap reads as "go under"
   ctx.fillStyle = stroke;
@@ -75,7 +84,7 @@ export function drawWorld(ctx: CanvasRenderingContext2D, v: WorldView): void {
   // Gates.
   course.gates.forEach((gx, i) => {
     const sx = gx - camX;
-    if (sx < -200 || sx > W + 200) return;
+    if (sx < -200 || sx > W) return;
     const fin = i === course.gates.length - 1;
     ctx.strokeStyle = fin ? C.lime : 'oklch(0.95 0.01 250 / 0.35)';
     ctx.lineWidth = 2;

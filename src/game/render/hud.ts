@@ -93,7 +93,7 @@ export function drawHud(ctx: CanvasRenderingContext2D, v: HudView): void {
   for (const chip of v.chips) {
     const age = v.now - chip.at;
     if (age > 2600) continue;
-    const sx = chip.worldX - v.camX;
+    const sx = (chip.worldX - v.camX) * 1.4;
     if (sx < -120 || sx > W + 120) continue;
     const pop = EASE_OUT(age / 220);
     const fade = age > 2000 ? 1 - (age - 2000) / 600 : 1;
