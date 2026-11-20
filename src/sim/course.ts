@@ -21,7 +21,7 @@ export interface Course {
 const h = (x: number): Obstacle => ({ kind: 'hurdle', x });
 const dbl = (x: number): Obstacle[] => [
   { kind: 'hurdle', x, tag: 'double' },
-  { kind: 'hurdle', x: x + 150, tag: 'double' },
+  { kind: 'hurdle', x: x + 170, tag: 'double' },
 ];
 const bar = (x: number): Obstacle => ({ kind: 'lowbar', x });
 const pit = (x: number): Obstacle => ({ kind: 'pit', x });

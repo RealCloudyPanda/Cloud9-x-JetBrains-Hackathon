@@ -33,8 +33,8 @@ export const TUNING = {
   slideW: 44,
   slideH: 22,
   /** Hitbox forgiveness, px: horizontal inset each side, feet and head insets. */
-  hitInsetX: 5,
-  hitInsetFeet: 3,
+  hitInsetX: 8,
+  hitInsetFeet: 10,
   hitInsetHead: 4,
   timeCap: 3600,
 } as const;

@@ -4,7 +4,7 @@ import type { Obstacle, ObstacleKind } from './course';
 export const OBSTACLE_SIZE: Record<ObstacleKind, { w: number }> = {
   hurdle: { w: 24 },
   lowbar: { w: 120 },
-  pit: { w: 130 },
+  pit: { w: 110 },
   beam: { w: 24 },
 };
 
