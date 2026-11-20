@@ -35,18 +35,18 @@ export class Input {
     });
     window.addEventListener('keyup', (e) => this.keys.delete(e.code));
     window.addEventListener('blur', () => {
-      this.keys.clear();
-      this.buttons = 0;
-      this.queue = [];
+      this.clear();
       this.onBlur?.();
     });
     target.addEventListener('mousedown', (e) => {
       e.preventDefault();
-      this.buttons |= e.button === 2 ? MASK_SLIDE : MASK_JUMP;
-      this.push(e.button === 2 ? 'slide' : 'jump', `Mouse${e.button}`, false, false);
+      if (e.button === 0) this.buttons |= MASK_JUMP;
+      if (e.button === 2) this.buttons |= MASK_SLIDE;
+      this.push(e.button === 0 ? 'jump' : e.button === 2 ? 'slide' : 'other', `Mouse${e.button}`, false, false);
     });
     window.addEventListener('mouseup', (e) => {
-      this.buttons &= ~(e.button === 2 ? MASK_SLIDE : MASK_JUMP);
+      if (e.button === 0) this.buttons &= ~MASK_JUMP;
+      if (e.button === 2) this.buttons &= ~MASK_SLIDE;
     });
     target.addEventListener('contextmenu', (e) => e.preventDefault());
   }
@@ -83,6 +83,8 @@ export class Input {
   }
 
   clear(): void {
+    this.keys.clear();
+    this.buttons = 0;
     this.queue = [];
   }
 }

@@ -128,6 +128,7 @@ export class App {
       this.input.clear();
     }
     if (s === 'run') {
+      this.input.clear();
       this.synth.play('go');
       this.send({ type: 'run-started', rivalInitials: this.rival.record.initials, rivalSplits: this.rival.record.splits });
     }
@@ -137,8 +138,11 @@ export class App {
     }
     if (s === 'attract') {
       if (from === 'run' || from === 'countdown') this.send({ type: 'board-changed' });
+      this.input.clear();
       this.run = null;
       this.ghost = null;
+      this.result = null;
+      this.fx.reset();
       this.rival = this.chooseRival(false);
       this.attract = new GhostRunner(COURSE, this.rival.record);
       this.attractDrawer.reset();
@@ -188,10 +192,16 @@ export class App {
         if (presses.some((p) => !(p.ctrl && p.shift))) this.booth.press();
         break;
       case 'initials':
-        for (const p of presses) this.initialsPress(p);
+        for (const p of presses) {
+          this.initialsPress(p);
+          if (this.booth.state !== 'initials') break;
+        }
         break;
       case 'operator':
-        for (const p of presses) this.operatorPress(p);
+        for (const p of presses) {
+          this.operatorPress(p);
+          if (this.booth.state !== 'operator') break;
+        }
         break;
       default:
         break;

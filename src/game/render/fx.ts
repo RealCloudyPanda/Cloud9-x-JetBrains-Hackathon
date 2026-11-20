@@ -17,6 +17,14 @@ export class Fx {
   flashAt = -1e9;
   shakeEnabled = true;
 
+  reset(): void {
+    for (const p of this.pool) p.life = 0;
+    this.words.length = 0;
+    this.rings.length = 0;
+    this.shakeUntil = 0;
+    this.stretchAt = this.squashAt = this.flashAt = -1e9;
+  }
+
   burst(x: number, y: number, n: number, col: string, speed: number): void {
     for (const p of this.pool) {
       if (n <= 0) break;
