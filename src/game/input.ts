@@ -11,6 +11,7 @@ export interface Press {
   code: string;
   ctrl: boolean;
   shift: boolean;
+  mask: number;
 }
 
 /**
@@ -23,6 +24,7 @@ export class Input {
   private queue: Press[] = [];
   /** Called synchronously on any press (used to unlock audio inside the gesture). */
   onAnyPress: (() => void) | null = null;
+  onBlur: (() => void) | null = null;
 
   constructor(target: HTMLElement) {
     window.addEventListener('keydown', (e) => {
@@ -35,6 +37,8 @@ export class Input {
     window.addEventListener('blur', () => {
       this.keys.clear();
       this.buttons = 0;
+      this.queue = [];
+      this.onBlur?.();
     });
     target.addEventListener('mousedown', (e) => {
       e.preventDefault();
@@ -57,7 +61,7 @@ export class Input {
   }
 
   private push(kind: PressKind, code: string, ctrl: boolean, shift: boolean): void {
-    this.queue.push({ kind, code, ctrl, shift });
+    this.queue.push({ kind, code, ctrl, shift, mask: this.mask });
     if (this.queue.length > 32) this.queue.shift();
     this.onAnyPress?.();
   }

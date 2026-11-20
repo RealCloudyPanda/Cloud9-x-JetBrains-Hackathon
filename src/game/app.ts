@@ -2,6 +2,7 @@ import { COURSE } from '../sim/course';
 import { courseVersion } from '../sim/courseVersion';
 import { gateDelta, segmentDeltas } from '../sim/splits';
 import { FP } from '../sim/fixed';
+import { MASK_SLIDE } from '../sim/tuning';
 import { Booth, type BoothState } from '../booth/stateMachine';
 import { TIMERS } from '../booth/timers';
 import { appendRun, dateKey, loadMeta, loadRuns, saveMeta, startNewDay, topRuns, updateRun, type KV, type Meta } from '../booth/storage';
@@ -70,6 +71,7 @@ export class App {
   private attractDrawer = new GhostDrawer();
   private channel = openChannel();
   private lastCam = 0;
+  private slideStartPending = false;
   reducedMotion = false;
   frozenNow: number | null = null;
   /** Scripted input for screenshot scenes; null = the real keyboard/mouse. */
@@ -83,6 +85,7 @@ export class App {
     this.attract = new GhostRunner(COURSE, this.rival.record);
     this.applySettings();
     input.onAnyPress = () => this.synth.unlock();
+    input.onBlur = () => { this.slideStartPending = false; };
   }
 
   applySettings(): void {
@@ -109,6 +112,7 @@ export class App {
   }
 
   private onEnter(s: BoothState, from: BoothState): void {
+    this.slideStartPending = false;
     if (s === 'countdown') {
       this.rival = this.chooseRival(this.booth.champion);
       if (this.meta.settings.forceHouse) {
@@ -160,9 +164,15 @@ export class App {
         }
         for (const p of presses) {
           if (p.ctrl && p.shift) continue;
-          const mask = this.input.mask;
-          const champion = (p.kind === 'jump' && (mask & 2) !== 0) || (p.kind === 'slide' && (mask & 1) !== 0);
-          if (this.booth.state === 'attract') this.booth.press({ champion });
+          if (p.kind === 'slide') {
+            this.slideStartPending = true;
+            continue;
+          }
+          this.booth.press({ champion: p.kind === 'jump' && (p.mask & MASK_SLIDE) !== 0 });
+          break;
+        }
+        if (this.slideStartPending && (this.input.mask & MASK_SLIDE) === 0) {
+          this.booth.press();
         }
         break;
       case 'countdown': {
