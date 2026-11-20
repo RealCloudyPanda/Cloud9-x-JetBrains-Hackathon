@@ -53,7 +53,7 @@ function render(): void {
   if (live) {
     now = `<section class="panel now"><h2>Now running</h2><div class="vs">CHALLENGER vs <span class="rival">${esc(live.rival)}</span></div>${gatesHtml(live.deltas)}</section>`;
   } else if (last) {
-    const verdict = last.dnf ? 'DNF' : last.beatRival ? 'BEAT THEIR GHOST' : 'LOST TO THEIR GHOST';
+    const verdict = last.dnf ? 'DNF' : last.beatRival ? 'BEAT THEIR GHOST' : 'GHOST TIME STANDS';
     now = `<section class="panel now"><h2>Last run</h2><div class="vs">${esc(last.initials)} · ${last.dnf ? 'DNF' : formatTime(last.finishTick)}</div><div class="label">${verdict}</div></section>`;
   } else {
     now = `<section class="panel now"><h2>Last run</h2><div class="label">Waiting for the first player</div></section>`;
