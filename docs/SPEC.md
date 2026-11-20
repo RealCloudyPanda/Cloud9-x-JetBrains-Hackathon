@@ -124,7 +124,7 @@ All in simulation units: 1 Tick = 1/60 s; distances in px; stored internally ×2
 | Pit hit | Runner placed at the Pit's far edge, 30-Tick Stumble | Counts as a Hit. |
 | Passive recovery | +0.002 Flow/Tick toward 1.00 when below 1.00 | Never above 1.00 without clears. |
 | Jump velocity | 10.5 px/Tick up | |
-| Gravity (rising, Jump held, ≤14 Ticks) | 0.62 px/Tick² | Full hold ≈ 88 px high, ≈ 28 Ticks airtime (≈ 168 px travelled at base speed). |
+| Gravity (rising, Jump held, ≤14 Ticks) | 0.62 px/Tick² | Full hold ≈ 82 px high (measured by `test/determinism.test.ts`, semi-implicit integrator), ≈ 28 Ticks airtime (≈ 168 px travelled at base speed). |
 | Gravity (otherwise) | 1.10 px/Tick² | Tap ≈ 50 px high, ≈ 19 Ticks airtime (≈ 114 px travelled). |
 | Fast-fall gravity | 2.75 px/Tick² | Slide pressed while airborne. |
 | Runner box | 28 × 48 standing, 44 × 22 sliding | |
