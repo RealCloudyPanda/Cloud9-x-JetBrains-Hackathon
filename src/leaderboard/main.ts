@@ -63,7 +63,7 @@ function render(): void {
     <section>${now}
       <div class="stats">
         <div><div class="label">Relay streak</div><div class="big">${meta.relayStreak}</div></div>
-        <div><div class="label">Runs today</div><div class="big" style="color:var(--text)">${runs.length}</div></div>
+        <div><div class="label">Runs today</div><div class="big" style="color:var(--text)">${meta.runCounter}</div></div>
       </div>
     </section>`;
 }

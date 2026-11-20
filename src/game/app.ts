@@ -447,12 +447,12 @@ export class App {
         rivalKind: this.rival.kind,
         rivalDnf: this.rival.record.dnf,
         streak: this.meta.relayStreak,
-        runsToday: this.runs.length,
+        runsToday: this.meta.runCounter,
         champion: champ ? { initials: champ.initials, ticks: champ.finishTick } : null,
         now,
         sample: this.runs.length === 0,
       });
-      if (state === 'operator') drawOperator(ctx, this.meta.settings, this.opFocus, this.opConfirm, this.meta.currentDay, this.runs.length);
+      if (state === 'operator') drawOperator(ctx, this.meta.settings, this.opFocus, this.opConfirm, this.meta.currentDay, this.meta.runCounter);
     }
     ctx.restore();
   }

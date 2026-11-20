@@ -87,11 +87,18 @@ export function topRuns(runs: GhostRecord[], n: number): GhostRecord[] {
 
 /** Drop inputs from anything that is neither recent nor top; cap the record count. */
 export function trimRuns(runs: GhostRecord[]): GhostRecord[] {
-  let out = runs.length > MAX_RECORDS ? runs.slice(runs.length - MAX_RECORDS) : runs.slice();
+  const top = new Set(topRuns(runs, KEEP_INPUTS_TOP).map((r) => r.id));
+  let out = runs;
+  if (runs.length > MAX_RECORDS) {
+    let toDrop = runs.length - MAX_RECORDS;
+    out = runs.filter((r) => {
+      if (toDrop === 0 || top.has(r.id)) return true;
+      toDrop--;
+      return false;
+    });
+  }
   const keep = new Set<string>(out.slice(-KEEP_INPUTS_LATEST).map((r) => r.id));
-  for (const r of topRuns(out, KEEP_INPUTS_TOP)) keep.add(r.id);
-  out = out.map((r) => (keep.has(r.id) || r.inputs === null ? r : { ...r, inputs: null }));
-  return out;
+  return out.map((r) => (keep.has(r.id) || top.has(r.id) || r.inputs === null ? r : { ...r, inputs: null }));
 }
 
 function isQuota(e: unknown): boolean {
