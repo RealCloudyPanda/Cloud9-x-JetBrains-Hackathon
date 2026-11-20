@@ -139,6 +139,20 @@ it('opens the operator shortcut across ticks and resets to a fresh board', () =>
   expect(app.booth.state).toBe('attract');
 });
 
+it('plays one beep per countdown step across uneven ticks', () => {
+  const { app, tap, tick } = booth();
+  const play = vi.spyOn(app.synth, 'play');
+  tap('ArrowUp');
+  tick();
+  tick(1025);
+  tick(1);
+  tick(1000);
+  tick(1);
+  tick(1000);
+  expect(play.mock.calls).toEqual([['beep'], ['beep'], ['beep'], ['go']]);
+  expect(app.booth.state).toBe('run');
+});
+
 it('completes a mouse-only turn and starts the next run on the new calendar day', () => {
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date(2026, 10, 20, 23, 59));
