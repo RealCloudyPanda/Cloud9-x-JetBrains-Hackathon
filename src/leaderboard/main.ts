@@ -4,7 +4,7 @@ import '@fontsource/jetbrains-mono/600.css';
 import '@fontsource/jetbrains-mono/700.css';
 import './style.css';
 import { dateKey, loadMeta, loadRuns, topRuns, META_KEY, RUNS_PREFIX } from '../booth/storage';
-import { openChannel, type BoardMessage } from '../booth/broadcast';
+import { LIVE_KEY, loadLiveRun, openChannel } from '../booth/broadcast';
 import { formatDelta, formatTime } from '../sim/splits';
 
 import { MemoryKV } from '../booth/memoryKv';
@@ -24,7 +24,6 @@ function sampleKv(): KV {
 }
 const store: KV = SAMPLE ? sampleKv() : localStorage;
 const LABELS = ['G1', 'G2', 'G3', 'G4', 'G5', 'FIN'];
-let live: { rival: string; deltas: (number | null)[] } | null = null;
 let lastTopId = '';
 
 function esc(s: string): string {
@@ -41,6 +40,7 @@ function gatesHtml(deltas: (number | null)[]): string {
 
 function render(): void {
   const meta = loadMeta(store, dateKey(new Date()));
+  const live = SAMPLE ? { rival: 'KAT', deltas: [-14, -5, 22, null, null, null] } : loadLiveRun(store, meta.currentDay);
   const runs = loadRuns(store, meta.currentDay);
   const top = topRuns(runs, 10);
   const last = runs[runs.length - 1];
@@ -68,21 +68,12 @@ function render(): void {
     </section>`;
 }
 
-const channel = openChannel();
-channel?.addEventListener('message', (e: MessageEvent<BoardMessage>) => {
-  const m = e.data;
-  if (m.type === 'run-started') live = { rival: m.rivalInitials, deltas: [null, null, null, null, null, null] };
-  else if (m.type === 'split' && live) live.deltas[m.gateIndex] = m.delta;
-  else if (m.type === 'run-finished' || m.type === 'board-reset') live = null;
-  else if (m.type === 'board-changed') live = null;
-  if (SAMPLE) live = { rival: 'KAT', deltas: [-14, -5, 22, null, null, null] };
-render();
-});
-window.addEventListener('storage', (e) => {
-  if (!e.key || e.key === META_KEY || e.key.startsWith(RUNS_PREFIX)) if (SAMPLE) live = { rival: 'KAT', deltas: [-14, -5, 22, null, null, null] };
-render();
-});
-document.addEventListener('visibilitychange', () => !document.hidden && render());
-setInterval(render, 5000);
-if (SAMPLE) live = { rival: 'KAT', deltas: [-14, -5, 22, null, null, null] };
+if (!SAMPLE) {
+  openChannel()?.addEventListener('message', render);
+  window.addEventListener('storage', (e) => {
+    if (e.storageArea === store && (!e.key || e.key === META_KEY || e.key === LIVE_KEY || e.key.startsWith(RUNS_PREFIX))) render();
+  });
+  document.addEventListener('visibilitychange', () => !document.hidden && render());
+  setInterval(render, 5000);
+}
 render();

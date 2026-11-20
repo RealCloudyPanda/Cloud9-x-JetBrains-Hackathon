@@ -11,7 +11,7 @@ import { recordFromSim, type GhostRecord } from '../booth/record';
 import { nextStreak } from '../booth/streak';
 import { verdict, type VerdictPart } from '../booth/verdict';
 import { cleanInitials, cycleLetter } from '../booth/initials';
-import { openChannel, type BoardMessage } from '../booth/broadcast';
+import { openChannel, saveLiveRun, type LiveRun } from '../booth/broadcast';
 import houseJson from './houseGhost.json';
 import { RunState } from './run';
 import { GhostRunner, verifyGhost } from './ghost';
@@ -69,7 +69,8 @@ export class App {
   finishAt = 0;
   private ghostDrawer = new GhostDrawer();
   private attractDrawer = new GhostDrawer();
-  private channel = openChannel();
+  private channel: BroadcastChannel | null;
+  private liveRun: LiveRun | null = null;
   private lastCam = 0;
   private initialsSlideUsed = false;
   reducedMotion = false;
@@ -77,7 +78,8 @@ export class App {
   /** Scripted input for screenshot scenes; null = the real keyboard/mouse. */
   maskOverride: ((sim: import('../sim/sim').Sim) => number) | null = null;
 
-  constructor(private ctx: CanvasRenderingContext2D, private input: Input, private kv: KV, private clock: () => number) {
+  constructor(private ctx: CanvasRenderingContext2D, private input: Input, private kv: KV, private clock: () => number, syncBoard = true) {
+    this.channel = syncBoard ? openChannel() : null;
     this.booth = new Booth(clock, { enter: (s, from) => this.onEnter(s, from), autoSubmit: () => this.submitInitials(true) });
     this.meta = loadMeta(kv, dateKey(new Date()));
     this.runs = loadRuns(kv, this.meta.currentDay);
@@ -92,12 +94,18 @@ export class App {
     this.fx.shakeEnabled = this.meta.settings.shake && !this.reducedMotion;
   }
 
-  private send(m: BoardMessage): void {
+  private notifyBoard(): void {
     try {
-      this.channel?.postMessage(m);
+      this.channel?.postMessage('changed');
     } catch {
       /* monitor is optional */
     }
+  }
+
+  private publishLiveRun(): void {
+    if (this.liveRun) this.liveRun.updatedAt = Date.now();
+    saveLiveRun(this.kv, this.liveRun);
+    this.notifyBoard();
   }
 
   private chooseRival(champion: boolean): RivalChoice {
@@ -128,7 +136,8 @@ export class App {
     if (s === 'run') {
       this.input.clear();
       this.synth.play('go');
-      this.send({ type: 'run-started', rivalInitials: this.rival.record.initials, rivalSplits: this.rival.record.splits });
+      this.liveRun = { day: this.meta.currentDay, rival: this.rival.record.initials, deltas: COURSE.gates.map(() => null), updatedAt: 0 };
+      this.publishLiveRun();
     }
     if (s === 'initials') {
       this.input.clear();
@@ -137,7 +146,10 @@ export class App {
       this.initialsSlideUsed = false;
     }
     if (s === 'attract') {
-      if (from === 'run' || from === 'countdown') this.send({ type: 'board-changed' });
+      if (from === 'run') {
+        this.liveRun = null;
+        this.publishLiveRun();
+      }
       this.input.clear();
       this.run = null;
       this.ghost = null;
@@ -242,7 +254,10 @@ export class App {
           if (d !== null) this.chips.push({ gate: e.gate, delta: d, worldX: COURSE.gates[e.gate], at: now });
           this.lastGate = e.gate;
           this.synth.play('gate');
-          this.send({ type: 'split', gateIndex: e.gate, tick: e.tick, delta: d });
+          if (this.liveRun) {
+            this.liveRun.deltas[e.gate] = d;
+            this.publishLiveRun();
+          }
           break;
         }
         default:
@@ -274,7 +289,8 @@ export class App {
     this.result = { record, rival, verdict: verdict(record, rival).parts, newBest };
     this.finishAt = now;
     this.synth.play(newBest ? 'best' : 'finish');
-    this.send({ type: 'run-finished', id: record.id });
+    this.liveRun = null;
+    this.publishLiveRun();
     this.booth.runFinished();
   }
 
@@ -309,7 +325,7 @@ export class App {
     const initials = auto ? '???' : cleanInitials(this.letters.join(''));
     this.result.record.initials = initials;
     this.runs = updateRun(this.kv, this.meta.currentDay, this.result.record.id, { initials });
-    this.send({ type: 'board-changed' });
+    this.notifyBoard();
     if (!auto) this.booth.initialsDone();
   }
 
@@ -332,7 +348,8 @@ export class App {
       this.meta = startNewDay(this.kv, this.meta, dateKey(new Date()));
       this.runs = [];
       this.opConfirm = false;
-      this.send({ type: 'board-reset' });
+      this.liveRun = null;
+      this.publishLiveRun();
     } else if (id === 'sound') s.sound = !s.sound;
     else if (id === 'shake') s.shake = !s.shake;
     else if (id === 'house') s.forceHouse = !s.forceHouse;

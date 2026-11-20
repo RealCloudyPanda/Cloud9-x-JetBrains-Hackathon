@@ -30,12 +30,13 @@ async function boot(): Promise<void> {
     /* fonts are optional */
   }
   const scene = params.get('scene');
-  const app = new App(ctx, input, scene ? new MemoryKV() : window.localStorage, () => performance.now());
+  const app = new App(ctx, input, scene ? new MemoryKV() : window.localStorage, () => performance.now(), !scene);
   app.reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   app.applySettings();
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) app.booth.hidden();
   });
+  window.addEventListener('pagehide', () => app.booth.hidden());
   if (scene) applyScene(app, scene);
   startLoop({ tick: () => (app.frozenNow === null ? app.tick() : undefined), frame: (a, dt) => app.frame(a, dt) });
 }
