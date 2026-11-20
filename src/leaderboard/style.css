@@ -30,3 +30,4 @@ li.fresh { animation: fresh 900ms cubic-bezier(0.23, 1, 0.32, 1); }
 .label { color: var(--text2); font-size: 0.75em; letter-spacing: 0.04em; text-transform: uppercase; }
 .stats { display: flex; gap: 3vw; }
 @media (prefers-reduced-motion: reduce) { li.fresh { animation: none; } }
+.sample { position: fixed; right: 4vw; bottom: 3vh; color: var(--orange); font-size: 0.6em; letter-spacing: 0.04em; }
