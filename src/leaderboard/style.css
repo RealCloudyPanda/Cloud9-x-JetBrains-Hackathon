@@ -1,0 +1,32 @@
+:root {
+  --ink: oklch(0.16 0.02 250); --raised: oklch(0.21 0.025 250); --text: oklch(0.95 0.01 250);
+  --text2: oklch(0.72 0.02 250); --lime: oklch(0.90 0.20 128); --cyan: oklch(0.82 0.12 210); --orange: oklch(0.72 0.19 45);
+  --display: "Chakra Petch", system-ui, sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--ink); color: var(--text); font: 600 clamp(20px, 1.7vw, 36px)/1.25 var(--display); }
+#board { display: grid; grid-template-columns: 1.15fr 1fr; gap: 4vw; padding: 4.5vh 4vw; height: 100%; }
+h1, h2 { margin: 0 0 2.5vh; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+h1 { font-size: 1.1em; color: var(--text2); }
+h2 { font-size: 0.8em; color: var(--text2); }
+ol { list-style: none; margin: 0; padding: 0; }
+li.row { display: grid; grid-template-columns: 2.4em 1fr auto; align-items: baseline; padding: 0.35em 0; border-bottom: 1px solid oklch(0.95 0.01 250 / 0.08); }
+li.row .rank { color: var(--text2); font-family: var(--mono); }
+li.row .ini { letter-spacing: 0.08em; }
+li.row .t { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+li.row.first { color: var(--lime); }
+li.fresh { animation: fresh 900ms cubic-bezier(0.23, 1, 0.32, 1); }
+@keyframes fresh { from { background: oklch(0.90 0.20 128 / 0.25); } to { background: transparent; } }
+.empty { color: var(--text2); }
+.panel { background: var(--raised); padding: 3vh 2vw; margin-bottom: 3vh; }
+.now .vs { font-size: 1.3em; margin-bottom: 1.5vh; }
+.vs .rival { color: var(--cyan); }
+.gates { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.4vw; }
+.gate { background: oklch(0.95 0.01 250 / 0.06); padding: 0.5em 0.3em; text-align: center; font-family: var(--mono); font-size: 0.8em; border-top: 4px solid transparent; }
+.gate small { display: block; font-family: var(--display); color: var(--text2); font-size: 0.7em; }
+.gate.ahead { border-color: var(--lime); color: var(--lime); }
+.gate.behind { border-color: var(--orange); color: var(--orange); }
+.big { font: 700 4.2em/1 var(--mono); color: var(--lime); }
+.label { color: var(--text2); font-size: 0.75em; letter-spacing: 0.04em; text-transform: uppercase; }
+.stats { display: flex; gap: 3vw; }
+@media (prefers-reduced-motion: reduce) { li.fresh { animation: none; } }
