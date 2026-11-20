@@ -2,6 +2,7 @@ import { MASK_JUMP, MASK_SLIDE } from '../sim/tuning';
 
 const JUMP_KEYS = new Set(['ArrowUp', 'KeyW', 'Space']);
 const SLIDE_KEYS = new Set(['ArrowDown', 'KeyS']);
+const MODIFIERS = /^(Alt|Control|Meta|Shift)(Left|Right)$/;
 
 export type PressKind = 'jump' | 'slide' | 'left' | 'right' | 'confirm' | 'other';
 
@@ -26,7 +27,7 @@ export class Input {
   constructor(target: HTMLElement) {
     window.addEventListener('keydown', (e) => {
       if (JUMP_KEYS.has(e.code) || SLIDE_KEYS.has(e.code) || e.code.startsWith('Arrow')) e.preventDefault();
-      if (e.repeat) return;
+      if (e.repeat || MODIFIERS.test(e.code)) return;
       this.keys.add(e.code);
       this.push(this.kindOf(e.code), e.code, e.ctrlKey || e.metaKey, e.shiftKey);
     });
