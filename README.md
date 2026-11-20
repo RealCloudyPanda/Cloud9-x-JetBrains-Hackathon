@@ -4,6 +4,8 @@
 
 Built for **Cloud9 x JetBrains: Sky's The Limit 2026**, Category 3 (Event Mini Game).
 
+[Official rules](https://cloud9.devpost.com/rules) · [Category submission specifics](https://cloud9.devpost.com/details/submission-specifics)
+
 ![Ghost Relay mid-run: the lime runner chasing the cyan ghost of the previous player, with the live Delta in the top bar](docs/images/hero.png)
 
 ## The problem
@@ -53,10 +55,12 @@ keyboard / mouse ──▶ live mask ──(sampled once per 60 Hz Tick)──�
 ## Sponsor tech & why it is necessary
 
 - **JetBrains Mono** (OFL, bundled via `@fontsource/jetbrains-mono`) sets every time and Delta with tabular digits, so numbers never jitter while the timer runs.
-- **JetBrains IDE workflow:** the owner's own WebStorm / Junie workflow write-up lives in [`AI_SHOWCASE.md`](AI_SHOWCASE.md) (to be written by the owner from real use).
+- **JetBrains tooling:** Category 3 requires using at least one eligible JetBrains development tool. Rider is recommended. The tooling explanation is pending the owner's account of what they used.
 - No Cloud9 or Riot assets are used; the game is original art drawn in canvas.
 
 ## Quickstart
+
+The hosted demo is pending GitHub Pages deployment. Use the local build below to play.
 
 Requires Node 22.
 
@@ -141,4 +145,4 @@ This prototype was built with significant AI assistance: the planning documents 
 
 ## License
 
-[MIT](LICENSE). Fonts: Chakra Petch and JetBrains Mono, SIL Open Font License 1.1, bundled via Fontsource.
+[MIT](LICENSE). Fonts bundled via Fontsource under the SIL Open Font License 1.1. [Chakra Petch license](public/licenses/Chakra-Petch-OFL.txt) · [JetBrains Mono license](public/licenses/JetBrains-Mono-OFL.txt)

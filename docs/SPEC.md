@@ -4,6 +4,8 @@
 
 Hackathon: Cloud9 x JetBrains "Sky's The Limit" 2026. Target: **Category 3, Event Mini Game** and the **Best AI-Powered Workflow Story** bonus. Deadline: 12 Jan 2027, 2:00 pm ET.
 
+[Official rules](https://cloud9.devpost.com/rules) · [Category submission specifics](https://cloud9.devpost.com/details/submission-specifics)
+
 Decisions and their reasoning: [`GRILL.md`](GRILL.md). Vocabulary: [`../GLOSSARY.md`](../GLOSSARY.md). Build order: [`PLAN.md`](PLAN.md).
 
 ---
@@ -275,7 +277,7 @@ Stack: Vite (multi-page), TypeScript, Canvas 2D, Vitest, `@fontsource/chakra-pet
 
 | Criterion | What the judge sees | Where |
 |---|---|---|
-| Technological implementation | Deterministic fixed-point sim; Ghosts as replayed Input Logs with per-gate hash verification; 2 000-replay and 1 000-turn endurance tests; offline two-window sync; WebAudio synth with zero audio files; built in WebStorm with Junie (owner's own write-up) | `src/sim/`, `test/`, README "How it works", `AI_SHOWCASE.md` |
+| Technological implementation | Deterministic fixed-point sim; Ghosts as replayed Input Logs with per-gate hash verification; 2 000-replay and 1 000-turn endurance tests; offline two-window sync; WebAudio synth with zero audio files; owner documents their JetBrains tool use | `src/sim/`, `test/`, README "How it works" |
 | Design | One readable course, two buttons, no tutorial; Verdict sentence teaches; Night broadcast look; split bar; accessible contrast and reduced motion | Video 0:00–1:30, screenshots |
 | Potential impact | Booth-ready today: attract mode, idle reset, Operator Panel, offline leaderboard monitor; the relay turns a queue into a chain of rivalries | README "Booth setup", video 1:30–2:00 |
 | Quality of idea | Not an aim trainer: you race the person who just played, and the game tells you exactly where you lost to them | Devpost description, video opening |
@@ -314,23 +316,23 @@ Category brief checklist: fast (≈30 s Run, < 60 s Turn) ✔ · replayable (fix
 >
 > Built for real booths: an attract screen, automatic reset after idle, arcade-style initials, an operator panel, and a live leaderboard on a second monitor that works with no internet at all. Ghosts are stored as recorded inputs and replayed through a deterministic fixed-point simulation; the test suite replays thousands of runs to prove every ghost matches.
 >
-> Built with TypeScript, Vite and Canvas 2D in WebStorm, with Junie (see the methodology write-up).
+> Built with TypeScript, Vite and Canvas 2D.
 
-**Built with:** typescript, vite, canvas, web-audio-api, vitest, webstorm, junie.
+**Built with:** TypeScript, Vite, Canvas 2D, Web Audio API and Vitest. Add the JetBrains tools actually used and describe what each contributed before submitting.
 
 ---
 
 ## 15. Submission checklist
 
 - [ ] Public GitHub repo with MIT `LICENSE` at root
-- [ ] Working demo link (GitHub Pages build) and offline booth instructions in README
+- [ ] Set the repository's Pages source to GitHub Actions, deploy, and add the verified demo link to README and Devpost
 - [ ] Devpost description (§14), filled with real details
 - [ ] `docs/METHODOLOGY.md`: approach, iterations, testing, what changed after playtests (owner fills real content)
-- [ ] `AI_SHOWCASE.md`: tooling explanation, WebStorm/Junie workflow (owner fills real content; template only)
-- [ ] Owner's JetBrains tool use is real and shown (screenshots/footage the owner captures themselves)
-- [ ] Video ≤ 3:00, uploaded publicly, linked on Devpost
+- [ ] Build with at least one eligible JetBrains development tool and describe what it contributed in Devpost. Rider is recommended. Genuine `.idea`, `.junie` or `.air` files are optional supporting evidence.
+- [ ] Public YouTube demo video under 3 minutes showing the full booth loop, linked on Devpost. Use original material or get permission for third-party material.
 - [ ] README with ≥ 3 screenshots, quickstart, Judging criteria → proof table, Known limitations, AI disclosure
 - [ ] Test output pasted into README only from an actual run
 - [ ] No Riot names, logos or art; no third-party logos in assets
-- [ ] Category selected: Event Mini Game; bonus: Best AI-Powered Workflow Story
+- [ ] Category selected: Event Mini Game
+- [ ] For the optional Best AI-Powered Workflow Story bonus, submit a direct link to the owner's genuine write-up or short video
 - [ ] Submitted before 12 Jan 2027, 2:00 pm ET
