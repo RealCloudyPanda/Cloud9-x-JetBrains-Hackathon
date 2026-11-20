@@ -118,8 +118,24 @@ export class App {
     });
   }
 
+  private refreshDay(): void {
+    const today = dateKey(new Date());
+    if (this.meta.currentDay.split('~')[0] === today) return;
+    this.meta = loadMeta(this.kv, today);
+    this.runs = loadRuns(this.kv, this.meta.currentDay);
+    this.applySettings();
+  }
+
+  private resetAttract(): void {
+    this.refreshDay();
+    this.rival = this.chooseRival(false);
+    this.attract = new GhostRunner(COURSE, this.rival.record);
+    this.attractDrawer.reset();
+  }
+
   private onEnter(s: BoothState, from: BoothState): void {
     if (s === 'countdown') {
+      this.refreshDay();
       this.rival = this.chooseRival(this.booth.champion);
       if (this.meta.settings.forceHouse) {
         this.meta.settings.forceHouse = false;
@@ -155,9 +171,7 @@ export class App {
       this.ghost = null;
       this.result = null;
       this.fx.reset();
-      this.rival = this.chooseRival(false);
-      this.attract = new GhostRunner(COURSE, this.rival.record);
-      this.attractDrawer.reset();
+      this.resetAttract();
     }
     if (s === 'operator') {
       this.opFocus = 0;
@@ -174,10 +188,7 @@ export class App {
     switch (this.booth.state) {
       case 'attract':
         this.attract.tick();
-        if (this.attract.sim.finished || this.attract.rejected) {
-          this.attract = new GhostRunner(COURSE, this.rival.record);
-          this.attractDrawer.reset();
-        }
+        if (this.attract.sim.finished || this.attract.rejected) this.resetAttract();
         for (const p of presses) {
           if ((p.ctrl && p.shift) || p.kind === 'slide') continue;
           this.booth.press({ champion: p.kind === 'jump' && (p.mask & MASK_SLIDE) !== 0 });
