@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { FakeStorage } from './helpers/fakeStorage';
 import { fakeRecord } from './helpers/records';
-import { appendRun, loadMeta, loadRuns, saveMeta, startNewDay, trimRuns, RUNS_PREFIX, safeSet, updateRun } from '../src/booth/storage';
+import { appendRun, loadMeta, loadRuns, saveMeta, startNewDay, topRuns, trimRuns, MAX_RECORDS, RUNS_PREFIX, safeSet, updateRun } from '../src/booth/storage';
 import { nextStreak } from '../src/booth/streak';
 
 describe('storage', () => {
@@ -21,6 +21,15 @@ describe('storage', () => {
     expect(withInputs.length).toBe(40); // 30 latest + 10 older top runs
     expect(withInputs).toContain('r0');
     expect(trimmed.find((r) => r.id === 'r20')!.inputs).toBeNull();
+  });
+
+  it('keeps the fastest ghosts when the daily history fills up', () => {
+    const runs = Array.from({ length: MAX_RECORDS + 20 }, (_, i) => fakeRecord(`r${i}`, 1600 + i));
+    const trimmed = trimRuns(runs);
+    expect(trimmed).toHaveLength(MAX_RECORDS);
+    expect(topRuns(trimmed, 10)).toEqual(runs.slice(0, 10));
+    expect(trimmed.slice(-30)).toEqual(runs.slice(-30));
+    expect(trimmed.some((r) => r.id === runs[10].id)).toBe(false);
   });
 
   it('rolls over to a fresh board on a new date, keeping settings', () => {
