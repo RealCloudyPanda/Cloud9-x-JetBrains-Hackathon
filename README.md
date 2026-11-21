@@ -111,13 +111,13 @@ There is no API key or account anywhere in this project, so "live" simply means 
 ```
 jump peaks: tap 49.3 px, full hold 82.5 px
 flat: 2000/2000 replays matched; largest log 343 bytes
-full: 2000/2000 replays matched; largest log 1236 bytes
-endurance: 1000 turns, mean run 31.41 s, 40/40 stored ghosts replay-verified, 499496 bytes stored, listeners 1
+full: 2000/2000 replays matched; largest log 1248 bytes
+endurance: 1000 turns, mean run 31.40 s, 40/40 stored ghosts replay-verified, 499224 bytes stored, listeners 1
 Test Files  16 passed (16)
 Tests  69 passed (69)
 ```
 
-The production build also passed two complete turns in headless Chromium with keyboard-only and mouse-only input. A second window recovered live splits after reloading with BroadcastChannel disabled. Both pages loaded from local build files under the Pages subpath.
+The production build also passed two complete turns in headless Chromium with keyboard-only and mouse-only input. A second window recovered live splits after reloading with BroadcastChannel disabled. Both pages loaded from local build files under the Pages subpath. A separate Chromium check verified native heartbeat connection and expiry after the player tab closed, safe Tab navigation, the visible Operator button, and the SESSION ONLY warning when browser storage was denied.
 
 Autopilot measurements (from `npm run house-ghost`): an error-free expert autopilot finishes in 22.67 s with 0 hits; the House Ghost, which deliberately fumbles three Switch Beams and hits two Double Hurdles, finishes in 28.72 s.
 

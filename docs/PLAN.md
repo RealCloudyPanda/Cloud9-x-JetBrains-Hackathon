@@ -133,3 +133,5 @@ Rules for the implementer:
 - Verification: 69 tests across 16 files, typecheck, production build, and House Ghost regeneration (expert 22.67 s / 0 hits; house 28.72 s / 5 hits).
 
 Owner tasks remain genuine JetBrains workflow evidence, human playtests, booth hardware/audio measurements, hosted deployment, and submission/video. No owner evidence is fabricated.
+
+Browser acceptance passed: keyboard and mouse complete turns with initials/relay/champion, abort/reset, storage-event monitor reload with BroadcastChannel disabled, sample isolation and bundled offline assets under a Pages subpath. Native heartbeat expiry, accessible navigation/Operator and denied-storage warning passed separately. Refreshed metrics: full replay max 1248 bytes; endurance mean 31.40 s, 499224 bytes stored.
