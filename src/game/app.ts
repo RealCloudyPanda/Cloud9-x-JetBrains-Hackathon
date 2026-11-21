@@ -1,3 +1,4 @@
+import { SessionKV } from '../booth/sessionKv';
 import { COURSE } from '../sim/course';
 import { courseVersion } from '../sim/courseVersion';
 import { gateDelta, segmentDeltas } from '../sim/splits';
@@ -89,6 +90,8 @@ export class App {
     this.applySettings();
     input.onAnyPress = () => this.synth.unlock();
   }
+
+  get persistent(): boolean { return !(this.kv instanceof SessionKV) || this.kv.persistent; }
 
   applySettings(): void {
     this.synth.enabled = this.meta.settings.sound;
@@ -436,7 +439,7 @@ export class App {
       if (state === 'initials' && this.result) {
         drawInitials(ctx, { letters: this.letters, slot: this.slot, finishTick: this.result.record.finishTick, dnf: this.result.record.dnf, idleFrac: Math.min(1, (this.clock() - this.booth.lastInputAt) / TIMERS.initialsIdle) });
       }
-      if (state === 'submitted' && this.result) drawSubmitted(ctx, this.result.record.initials, this.booth.elapsed);
+      if (state === 'submitted' && this.result) drawSubmitted(ctx, this.result.record.initials, this.booth.elapsed, this.persistent);
     } else {
       const g = this.attract;
       const gx = g.x(alpha);

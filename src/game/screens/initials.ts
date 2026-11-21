@@ -54,13 +54,13 @@ export function drawInitials(ctx: CanvasRenderingContext2D, v: InitialsView): vo
   label(ctx, 'AUTO-SAVES AS ??? WHEN THE BAR RUNS OUT', 64, 650, C.text3, 12);
 }
 
-export function drawSubmitted(ctx: CanvasRenderingContext2D, initials: string, ageMs: number): void {
+export function drawSubmitted(ctx: CanvasRenderingContext2D, initials: string, ageMs: number, persistent = true): void {
   ctx.fillStyle = 'oklch(0.12 0.02 250 / 0.94)';
   ctx.fillRect(0, 0, W, H);
   const t = Math.min(1, ageMs / 260);
   const e = 1 - Math.pow(1 - t, 3);
   ctx.globalAlpha = e;
-  label(ctx, 'SAVED', 64, 280, C.text2, 18);
+  label(ctx, persistent ? 'SAVED ON THIS BROWSER' : 'SESSION ONLY · EXPORT BEFORE CLOSING', 64, 280, C.text2, 18);
   ctx.font = display(84, 700);
   tracked(ctx, 84);
   ctx.fillStyle = C.text;
