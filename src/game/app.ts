@@ -445,7 +445,7 @@ export class App {
       if (state === 'initials' && this.result) {
         drawInitials(ctx, { letters: this.letters, slot: this.slot, finishTick: this.result.record.finishTick, dnf: this.result.record.dnf, idleFrac: Math.min(1, (this.clock() - this.booth.lastInputAt) / TIMERS.initialsIdle) });
       }
-      if (state === 'submitted' && this.result) drawSubmitted(ctx, this.result.record.initials, this.booth.elapsed, this.persistent);
+      if (state === 'submitted' && this.result) drawSubmitted(ctx, this.result.record.initials, this.reducedMotion ? 10000 : this.booth.elapsed, this.persistent);
     } else {
       const g = this.attract;
       const gx = g.x(alpha);
@@ -466,7 +466,8 @@ export class App {
         runsToday: this.meta.runCounter,
         champion: champ ? { initials: champ.initials, ticks: champ.finishTick } : null,
         now,
-        sample: this.runs.length === 0,
+        sample: this.rival.kind === 'house',
+        reducedMotion: this.reducedMotion,
       });
       if (state === 'operator') drawOperator(ctx, this.meta.settings, this.opFocus, this.opConfirm, this.meta.currentDay, this.meta.runCounter);
     }
@@ -493,7 +494,7 @@ export class App {
     const rec = res.record;
     const segTicks = rec.splits.map((s, i) => (s < 0 ? 0 : s - (i === 0 ? 0 : rec.splits[i - 1])));
     drawResults(this.ctx, {
-      ageMs: now - this.finishAt,
+      ageMs: this.reducedMotion ? 10000 : now - this.finishAt,
       finishTick: rec.finishTick,
       dnf: rec.dnf,
       rivalInitials: res.rival.initials,

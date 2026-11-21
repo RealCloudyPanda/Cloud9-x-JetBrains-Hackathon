@@ -14,6 +14,7 @@ export interface AttractView {
   champion: { initials: string; ticks: number } | null;
   now: number;
   sample: boolean;
+  reducedMotion?: boolean;
 }
 
 export function drawAttract(ctx: CanvasRenderingContext2D, v: AttractView): void {
@@ -67,7 +68,7 @@ export function drawAttract(ctx: CanvasRenderingContext2D, v: AttractView): void
   label(ctx, 'HOLD ↑ TO JUMP HIGHER · MOUSE WORKS TOO', 64, y + 58, C.text3, 13);
 
   // Pulsing call to action (ambient, not input-driven, so it may animate).
-  const pulse = 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(v.now / 380));
+  const pulse = v.reducedMotion ? 1 : 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(v.now / 380));
   ctx.globalAlpha = pulse;
   ctx.font = display(26, 700);
   tracked(ctx, 26);

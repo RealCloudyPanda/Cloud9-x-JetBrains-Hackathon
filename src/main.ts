@@ -34,7 +34,9 @@ async function boot(): Promise<void> {
   const scene = params.get('scene');
   const store = scene ? new MemoryKV() : browserStorage();
   const app = new App(ctx, input, store, () => performance.now(), !scene);
-  app.reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  app.reducedMotion = motion.matches;
+  motion.addEventListener('change', () => { app.reducedMotion = motion.matches; app.applySettings(); });
   app.applySettings();
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) app.booth.hidden();
