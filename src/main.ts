@@ -8,6 +8,7 @@ import { Input } from './game/input';
 import { startLoop } from './game/loop';
 import { App } from './game/app';
 import { applyScene } from './game/scenes';
+import { browserStorage } from './booth/sessionKv';
 import { MemoryKV } from './booth/memoryKv';
 
 const params = new URLSearchParams(location.search);
@@ -30,7 +31,7 @@ async function boot(): Promise<void> {
     /* fonts are optional */
   }
   const scene = params.get('scene');
-  const app = new App(ctx, input, scene ? new MemoryKV() : window.localStorage, () => performance.now(), !scene);
+  const app = new App(ctx, input, scene ? new MemoryKV() : browserStorage(), () => performance.now(), !scene);
   app.reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   app.applySettings();
   document.addEventListener('visibilitychange', () => {
