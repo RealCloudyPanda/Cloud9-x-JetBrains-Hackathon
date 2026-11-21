@@ -107,3 +107,9 @@ This project was built with significant AI assistance. Planning documents and mu
 were drafted by AI coding agents from my brief and reviewed by running them. [[OWNER: your JetBrains/Junie
 workflow.]] All test numbers come from actual runs.
 ```
+
+**Built with:** `typescript` · `vite` · `canvas` · `web-audio-api` · `vitest` · `broadcastchannel` · `localstorage` · [[OWNER: the JetBrains tools you actually used, e.g. `webstorm` `junie`]]
+
+**Try it out:** [[hosted demo URL once GitHub Pages is live]] · `https://github.com/RealCloudyPanda/Cloud9-x-JetBrains-Hackathon`
+
+**Category:** Category 3: Event Mini Game
