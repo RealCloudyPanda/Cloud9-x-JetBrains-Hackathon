@@ -123,3 +123,13 @@ Rules for the implementer:
 | Second monitor misses an update | `storage` fallback + re-read on visibility; monitor reads full state, messages are hints | 10 |
 | Audio blocked by autoplay policy | Unlock on first Attract key, which every player presses | 15 |
 | Bonus prize needs a real workflow story | Templates only; owner writes from real WebStorm/Junie use | 17 |
+
+## Completed relay reliability pass — 2026-11-21
+
+- Fixed course-authored Switch Beam answers, regenerated/versioned the House Ghost, and verified fairness at different runner speeds.
+- Added YOU/rival labels, starter and handoff explanations, state announcements, safe keyboard navigation, visible Operator/spectator controls, and reduced-motion screen reveals.
+- Preserved relay state in memory after storage denial/quota errors, displayed SESSION ONLY, and validated malformed records/settings before recovery.
+- Published expiring station heartbeats with monitor recovery controls; filtered retired Course Versions from best-run and spectator comparisons.
+- Verification: 69 tests across 16 files, typecheck, production build, and House Ghost regeneration (expert 22.67 s / 0 hits; house 28.72 s / 5 hits).
+
+Owner tasks remain genuine JetBrains workflow evidence, human playtests, booth hardware/audio measurements, hosted deployment, and submission/video. No owner evidence is fabricated.

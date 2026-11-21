@@ -48,6 +48,7 @@ keyboard / mouse ──▶ live mask ──(sampled once per 60 Hz Tick)──�
 ```
 
 - A Ghost is **not** a recording of positions. It is the player's Input Log (typically under 1.3 KB) re-simulated through the same deterministic sim, stepped on the same Tick as the player ([ADR 0001](docs/adr/0001-ghost-is-a-resimulated-input-log.md), [ADR 0002](docs/adr/0002-integer-fixed-point-simulation.md)).
+- Every Switch Beam has one authored answer for the whole relay. Its reveal still depends on position; reaching it on a different Tick never changes its answer.
 - Each Ghost stores a state hash at every Split Gate. A replay that drifts is rejected and the rival falls back to the next Ghost, then the House Ghost.
 - The **Course Version** is a hash of the Course data and every tuning constant, so changing physics automatically retires old Ghosts.
 - `src/sim/` imports nothing outside itself; a test greps it for `Math.random`, `Date`, `performance`, DOM globals and trig.
@@ -79,7 +80,8 @@ npm run booth        # builds and serves http://localhost:4173
 1. Player monitor: open `http://localhost:4173/?booth=1`, press F11 (cursor hidden, reload shortcuts blocked).
 2. Second monitor: open `http://localhost:4173/leaderboard.html` in a second window in the same browser profile and press F11. Keep the player page visible during a Run.
 3. Start of day: `Ctrl+Shift+O` → *Start new day* → Enter twice. `Esc` closes the panel.
-4. To recover, exit full screen and use the browser toolbar to reload. Completed Runs are saved locally. A Run still in progress is discarded.
+4. The monitor reports whether the player station is connected, hidden, or absent. Use its **Open player station** link or **Refresh monitor** button to recover.
+5. To recover, exit full screen and use the browser toolbar to reload. Completed Runs are saved locally. A Run still in progress is discarded.
 
 Other scripts: `npm test`, `npm run typecheck`, `npm run build`, `npm run house-ghost` (regenerate the shipped House Ghost).
 
@@ -104,19 +106,20 @@ There is no API key or account anywhere in this project, so "live" simply means 
 | Quality of idea | You race the person who just played, and the game tells you exactly where you lost to them ([ADR 0003](docs/adr/0003-default-ghost-is-previous-player.md)) |
 | Presentation | Screenshots above; video script in [`docs/SPEC.md`](docs/SPEC.md#13-video-script--3-min) |
 
-### Test results (from `npx vitest run --reporter=verbose` on 2026-11-20)
+### Test results (verified on 2026-11-21)
 
 ```
 jump peaks: tap 49.3 px, full hold 82.5 px
 flat: 2000/2000 replays matched; largest log 343 bytes
 full: 2000/2000 replays matched; largest log 1236 bytes
 endurance: 1000 turns, mean run 31.41 s, 40/40 stored ghosts replay-verified, 499496 bytes stored, listeners 1
-Tests  61 passed (61)
+Test Files  16 passed (16)
+Tests  69 passed (69)
 ```
 
 The production build also passed two complete turns in headless Chromium with keyboard-only and mouse-only input. A second window recovered live splits after reloading with BroadcastChannel disabled. Both pages loaded from local build files under the Pages subpath.
 
-Autopilot measurements (from `npm run house-ghost`): an error-free expert autopilot finishes in 22.67 s with 0 hits; the House Ghost, which deliberately fumbles three Switch Beams, finishes in 28.72 s.
+Autopilot measurements (from `npm run house-ghost`): an error-free expert autopilot finishes in 22.67 s with 0 hits; the House Ghost, which deliberately fumbles three Switch Beams and hits two Double Hurdles, finishes in 28.72 s.
 
 ## Project structure
 
@@ -130,6 +133,12 @@ scripts/          House Ghost generator (autopilot → JSON)
 test/             determinism, obstacles, purity, splits, ghost, state machine, storage, rival, verdict, endurance
 docs/             SPEC, PLAN, GRILL, RESEARCH, ADRs, METHODOLOGY template, images
 ```
+
+## Storage recovery and accessible controls
+
+The game labels the lime runner **YOU** and the cyan runner with its rival name. The opening screen explains the starter ghost, and Results explains that this run becomes the next rival. Tab reaches the spectator link and Operator button without starting a run; screen readers receive state announcements. Reduced motion removes ambient pulses and reveals as well as camera effects.
+
+If localStorage is denied or fills during play, the current tab keeps its relay in memory and shows **SESSION ONLY**. Export runs from Operator before closing the tab. This fallback does not persist across reloads and cannot sync a spectator window. Existing incompatible Course Versions are excluded from best-time comparisons and spectator ranks.
 
 ## Known limitations
 

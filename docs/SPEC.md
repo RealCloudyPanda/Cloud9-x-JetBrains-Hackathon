@@ -96,7 +96,7 @@ Roughly 32 obstacles total. Minimum gap between obstacle groups: 220 px (about 0
 | Pit | 110 wide gap in the floor (runner is supported while any part of its box is over floor) | Held Jump (a tap lands in the Pit) | 0–36 px |
 | Switch Beam | 24 wide; LOW = 0–40 px (Jump) or HIGH = underside at 30 px (Slide) | Read, then Jump or Slide | as Hurdle or Low Bar |
 
-Switch Beam rule: trigger line 160 px before the beam. Before the runner's front crosses it, the beam is drawn strobing between both positions every 6 Ticks (unreadable on purpose). On crossing, it locks: `LOW if tickAtTrigger is even, else HIGH`. Reaction distance is constant; reaction time is about 27 Ticks (0.44 s) at base speed and about 20 Ticks (0.33 s) at max Flow. Each simulation (player, Ghost) has its own beam locks.
+Switch Beam rule: trigger line 160 px before the beam. Before the runner's front crosses it, the beam is drawn strobing between both positions every 6 Ticks (unreadable on purpose). On crossing, it reveals the fixed `beamAnswer` authored in the Course (`jump` = LOW, `slide` = HIGH). Every player and Ghost sees the same answer regardless of arrival Tick. Reaction distance is constant; reaction time is about 27 Ticks (0.44 s) at base speed and about 20 Ticks (0.33 s) at max Flow. Each simulation has its own reveal state, with the same course answer.
 
 ### 4.3 Controls
 
@@ -104,7 +104,7 @@ Switch Beam rule: trigger line 160 px before the beam. Before the runner's front
 |---|---|---|---|
 | Jump | ↑, W, Space | Left button | Press to jump. Holding up to 14 Ticks gives a higher, longer jump. Buffered for 6 Ticks before landing; coyote time 5 Ticks after leaving a ledge. |
 | Slide | ↓, S | Right button (context menu suppressed) | Hold to slide (minimum 18 Ticks once started). In the air: fast-fall (gravity ×2.5). |
-| Anything | any key/button | any | Starts a Run from Attract. |
+| Start | Enter, Space or Jump; hold Slide + Jump for champion | Left button | Starts a Run from Attract. Tab, modifiers, Operator and spectator navigation do not start a Run. |
 
 Every key that is neither Jump nor Slide does nothing during a Run. Arcade two-button encoders that send ↑/↓ or Space/S work without configuration.
 
@@ -218,7 +218,7 @@ One sentence, picked by rules, in this order:
 | `ghostrelay:v1:meta` | `{ currentDay, runCounter, relayStreak, settings: { sound, shake } }` | Small. |
 | `ghostrelay:v1:live` | Current rival and cumulative gate Deltas for the active board, with the timestamp of the last update | One active Run. Cleared on finish or abort and treated as stale after 30 seconds without an update. |
 
-BroadcastChannel `ghost-relay` prompts the Leaderboard Monitor to re-read storage after starts, splits, finishes, initials, and resets. The monitor also reads on load, `storage` events, `visibilitychange`, and a five-second timer. Saved scores retry once after deleting the oldest archived board on quota error.
+BroadcastChannel `ghost-relay` prompts the Leaderboard Monitor to re-read storage after starts, splits, finishes, initials, and resets. The monitor also reads on load, `storage` events, `visibilitychange`, and a two-second timer. A station heartbeat is stored in `ghostrelay:v1:status`, expires after six seconds, and tells the monitor whether the player tab is visible. If persistent storage fails, the game keeps the relay in memory for this tab and visibly labels it SESSION ONLY; export remains available, while spectator sync and reload persistence are unavailable.
 
 ---
 

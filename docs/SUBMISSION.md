@@ -39,7 +39,7 @@ Film the real booth setup: laptop plus a second monitor, Wi-Fi off. You need two
 | 0:35–1:05 | Player A presses any key: countdown, run. Show a Switch Beam revealing jump or slide at the last moment. Delta chips pop at gates. | "Two buttons: jump and slide. No tutorial. About thirty seconds. Switch Beams only show whether to jump or slide at the last moment, so it's a reaction test, the same skill competitive players train." |
 | 1:05–1:35 | Player B races A's Ghost. Live Deltas. Results and Verdict. B enters initials. Booth returns to Attract with B as the new rival. | "Six split gates. At the end you get one sentence, the gate where you lost the most time and why. Then your three initials, and you're the Ghost for the next person in line." |
 | 1:35–1:55 | Second monitor updating live as B runs; laptop Wi-Fi menu showing off. Quick cut: an idle screen timing out back to Attract; `Ctrl+Shift+O` Operator Panel, *Start new day*. | "The leaderboard runs on a second monitor with no internet. Every screen resets itself when someone walks away. A volunteer can start a new day in two keystrokes." |
-| 1:55–2:05 | Terminal: `npx vitest run --reporter=verbose`, zoom on the real lines `2000/2000 replays matched` and `endurance: 1000 turns … 40/40 stored ghosts replay-verified`, then `Tests 61 passed`. | "A Ghost isn't a recording of positions. It's your inputs, replayed through a deterministic integer simulation. The tests replay four thousand runs and a thousand booth turns to prove every Ghost matches." |
+| 1:55–2:05 | Terminal: `npx vitest run --reporter=verbose`, zoom on the real lines `2000/2000 replays matched` and `endurance: 1000 turns … 40/40 stored ghosts replay-verified`, then `Tests 69 passed`. | "A Ghost isn't a recording of positions. It's your inputs, replayed through a deterministic integer simulation. The tests replay four thousand runs and a thousand booth turns to prove every Ghost matches." |
 | 2:05–2:30 | **Owner footage** from the JetBrains pass: WebStorm/Rider and Junie doing the real task. | **[[OWNER]]** Describe in one or two sentences what you used and what it did, e.g. "I used WebStorm and Junie to …". Only what actually happened. |
 | 2:30–2:40 | Attract screen, `BEAT` with B's initials. End card: "Ghost Relay — beat the last one." Repo and demo URLs. | "Ghost Relay. Beat the last one." |
 
@@ -87,7 +87,7 @@ The leaderboard monitor syncs with BroadcastChannel and storage events and resto
 [[OWNER: which JetBrains tools you used and what each did, from your real use.]]
 
 ## Proof it holds up at a booth
-From the test suite (Vitest, 61 tests): 2,000 of 2,000 seeded bot runs replayed identically on the flat
+From the test suite (Vitest, 69 tests): 2,000 of 2,000 seeded bot runs replayed identically on the flat
 course and 2,000 of 2,000 on the full course; a 1,000-turn endurance run kept 40 of 40 stored Ghosts
 replay-verified. A test also scans the simulation source for `Math.random`, `Date`,
 `performance` and DOM globals.
@@ -132,3 +132,7 @@ workflow.]] All test numbers come from actual runs.
 - [ ] Video under 3:00, public on YouTube, numbers on screen from the filmed run.
 - [ ] Every `[[OWNER]]` line above replaced or removed.
 - [ ] Submit by Jan 10; the deadline is Jan 12, 2:00 PM ET.
+
+## Latest implementation evidence — 2026-11-21
+
+The reliability pass adds fixed course answers for Switch Beams, explicit YOU/rival and handoff labels, accessible booth controls, SESSION ONLY recovery when storage fails, and an expiring spectator station heartbeat with recovery links. The current suite passes 69 tests, with typecheck and production build green. Scripted verification is not human playtest or JetBrains usage evidence; the owner-only fields and hosting/video tasks above remain pending.
