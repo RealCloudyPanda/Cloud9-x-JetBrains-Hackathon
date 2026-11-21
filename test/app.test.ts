@@ -193,3 +193,13 @@ it('Tab and Escape preserve attract so booth tools can receive focus', () => {
   tap('Escape'); tick();
   expect(app.booth.state).toBe('attract');
 });
+
+it('a retired course record cannot suppress a current-course personal best', () => {
+  const { app, tap, tick, play } = booth();
+  const old = { ...app.rival.record, id: 'retired', courseVersion: 'old-physics', finishTick: 1 };
+  app.runs = [old];
+  tap('Enter'); tick(); tick(TIMERS.countdown);
+  play(() => {});
+  expect(app.booth.state).toBe('results');
+  expect(app.result?.newBest).toBe(true);
+});

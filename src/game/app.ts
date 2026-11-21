@@ -289,7 +289,7 @@ export class App {
   private finishRun(now: number): void {
     const run = this.run!;
     const rival = this.rival.record;
-    const prevBest = topRuns(this.runs, 1)[0];
+    const prevBest = topRuns(this.runs.filter(r => r.courseVersion === VERSION), 1)[0];
     const beat = !run.sim.dnf && (rival.dnf || run.sim.finishTick < rival.finishTick - 1);
     this.meta.runCounter++;
     const record = recordFromSim(run.sim, run.rec.log, {

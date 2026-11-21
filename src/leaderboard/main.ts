@@ -5,6 +5,8 @@ import '@fontsource/jetbrains-mono/700.css';
 import './style.css';
 import { dateKey, loadMeta, loadRuns, topRuns, META_KEY, RUNS_PREFIX } from '../booth/storage';
 import { LIVE_KEY, STATUS_KEY, loadBoothStatus, loadLiveRun, openChannel } from '../booth/broadcast';
+import { COURSE } from '../sim/course';
+import { courseVersion } from '../sim/courseVersion';
 import { formatDelta, formatTime } from '../sim/splits';
 
 import { MemoryKV } from '../booth/memoryKv';
@@ -47,7 +49,7 @@ function gatesHtml(deltas: (number | null)[]): string {
 function render(): void {
   const meta = loadMeta(store, dateKey(new Date()));
   const live = SAMPLE ? { rival: 'KAT', deltas: [-14, -5, 22, null, null, null] } : loadLiveRun(store, meta.currentDay);
-  const runs = loadRuns(store, meta.currentDay);
+  const runs = loadRuns(store, meta.currentDay).filter(r => SAMPLE || r.courseVersion === courseVersion(COURSE));
   const top = topRuns(runs, 10);
   const last = runs[runs.length - 1];
   const freshId = top[0]?.id !== lastTopId ? top[0]?.id : '';
