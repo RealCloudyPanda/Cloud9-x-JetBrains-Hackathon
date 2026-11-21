@@ -18,3 +18,12 @@ Draft for the owner. Nothing here has been submitted. Rules, overview and Submis
 | Bonus: Best AI-Powered Workflow Story ($1,000) | A direct URL to a case study or short video about using JetBrains IDEs, Junie or Air. A repo file such as `AI_SHOWCASE.md` counts. | Template with 7 `TODO (owner)` lines. Only real use counts. |
 
 **Judging** (equally weighted): Technological Implementation ("How thoroughly and skillfully does the project use JetBrains tools?"), Design, Potential Impact, Quality of the Idea, Presentation (the video, end to end). Ties go to the higher score on the first criterion, which is the JetBrains one.
+
+## The JetBrains pass (do this before recording)
+
+The JetBrains requirement is both an eligibility rule and the first judging criterion, so the entry is weakest here. A real pass that changes the game is the fix. Pick one task from the README's Known limitations and do it in WebStorm (or Rider) with Junie:
+
+1. **ESLint `no-restricted-globals` for `src/sim/`** (SPEC §7). Small, testable, and on theme: the IDE then flags `Math.random`, `Date` or `performance` in the sim as you type. Good footage.
+2. **Finish slow-motion** (SPEC §5.1). Visible in the video, but it must stay in the renderer so determinism holds (ADR 0002).
+
+Record your screen while you work. That footage goes in the video segment at 2:05–2:30 and can become the bonus video. Commit any `.idea` / `.junie` files the tools actually create; never write them by hand. Then fill `AI_SHOWCASE.md` and `docs/METHODOLOGY.md` from what happened.
