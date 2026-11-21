@@ -42,3 +42,17 @@ export function openChannel(): BroadcastChannel | null {
     return null;
   }
 }
+
+export const STATUS_KEY = `${PREFIX}status`;
+export interface BoothStatus { state: string; day: string; updatedAt: number; persistent: boolean; }
+export function loadBoothStatus(kv: KV, now = Date.now()): BoothStatus | null {
+  try {
+    const value = JSON.parse(kv.getItem(STATUS_KEY) ?? 'null') as BoothStatus | null;
+    if (!value || typeof value.state !== 'string' || typeof value.day !== 'string' || typeof value.persistent !== 'boolean') return null;
+    const age = now - value.updatedAt;
+    return Number.isFinite(age) && age >= 0 && age < 6000 ? value : null;
+  } catch { return null; }
+}
+export function saveBoothStatus(kv: KV, status: BoothStatus): void {
+  try { kv.setItem(STATUS_KEY, JSON.stringify(status)); } catch { /* optional monitor */ }
+}

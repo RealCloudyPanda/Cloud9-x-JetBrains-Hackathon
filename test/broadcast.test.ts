@@ -18,3 +18,12 @@ it('restores the latest live splits without a channel and expires abandoned runs
   kv.setItem(LIVE_KEY, '{invalid');
   expect(loadLiveRun(kv, day, 7_500)).toBeNull();
 });
+
+it('expires booth heartbeats so a closed or suspended player tab is visible', async () => {
+  const { saveBoothStatus, loadBoothStatus } = await import('../src/booth/broadcast');
+  const kv = new MemoryKV();
+  saveBoothStatus(kv, { state: 'run', day: 'today', updatedAt: 1000, persistent: true });
+  expect(loadBoothStatus(kv, 2000)?.state).toBe('run');
+  expect(loadBoothStatus(kv, 7000)).toBeNull();
+  expect(loadBoothStatus(kv, 999)).toBeNull();
+});

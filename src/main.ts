@@ -8,6 +8,7 @@ import { Input } from './game/input';
 import { startLoop } from './game/loop';
 import { App } from './game/app';
 import { applyScene } from './game/scenes';
+import { saveBoothStatus } from './booth/broadcast';
 import { browserStorage } from './booth/sessionKv';
 import { MemoryKV } from './booth/memoryKv';
 
@@ -31,13 +32,15 @@ async function boot(): Promise<void> {
     /* fonts are optional */
   }
   const scene = params.get('scene');
-  const app = new App(ctx, input, scene ? new MemoryKV() : browserStorage(), () => performance.now(), !scene);
+  const store = scene ? new MemoryKV() : browserStorage();
+  const app = new App(ctx, input, store, () => performance.now(), !scene);
   app.reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   app.applySettings();
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) app.booth.hidden();
   });
   window.addEventListener('pagehide', () => app.booth.hidden());
+  if (!scene) setInterval(() => saveBoothStatus(store, { state: document.hidden ? 'hidden' : app.booth.state, day: app.meta.currentDay, updatedAt: Date.now(), persistent: app.persistent }), 1000);
   document.getElementById('operator')?.addEventListener('click', () => app.booth.openOperator());
   const status = document.getElementById('game-status')!;
   const storage = document.getElementById('storage-status')!;
