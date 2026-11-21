@@ -9,8 +9,12 @@
   </head>
   <body>
     <main id="stage" aria-label="Ghost Relay game">
-      <canvas id="game" aria-label="Ghost Relay. Press up to jump, down to slide."></canvas>
+      <canvas id="game" tabindex="0" aria-describedby="instructions game-status" aria-label="Ghost Relay. Press up to jump, down to slide."></canvas>
     </main>
+    <nav aria-label="Booth tools"><a href="./leaderboard.html" target="_blank" rel="noopener">Open spectator monitor</a><button id="operator" type="button">Operator panel</button></nav>
+    <p id="game-status" role="status" aria-live="polite"></p>
+    <p id="storage-status" role="status"></p>
+    <p id="instructions" class="sr-only">Lime runner: you. Cyan ghost: last player, or starter house ghost. Up, W or Space jumps; Down or S slides. Hold jump for height. Press Enter to start. Ctrl Shift O opens operator controls. In initials use arrow keys to select letters and Enter to confirm.</p>
     <script type="module" src="./src/main.ts"></script>
   </body>
 </html>

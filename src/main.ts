@@ -38,7 +38,22 @@ async function boot(): Promise<void> {
     if (document.hidden) app.booth.hidden();
   });
   window.addEventListener('pagehide', () => app.booth.hidden());
+  document.getElementById('operator')?.addEventListener('click', () => app.booth.openOperator());
+  const status = document.getElementById('game-status')!;
+  const storage = document.getElementById('storage-status')!;
+  let previous = '';
+  const announce = () => {
+    const state = app.booth.state;
+    const next = state === 'attract' ? `Ready · ${app.rival.kind === 'house' ? 'Starter house ghost' : 'Last player'} ${app.rival.record.initials}`
+      : state === 'submitted' ? `Relay handed to ${app.result?.record.initials}. Next player races your ghost.`
+      : state === 'initials' ? `Sign your ghost · ${app.letters.join('')} · letter ${app.slot + 1}`
+      : state === 'results' ? app.result?.verdict.map(p => p.text).join('') ?? 'Results'
+      : state === 'operator' ? 'Operator panel · arrows move · Enter selects · Escape closes'
+      : state === 'countdown' ? 'Get ready · lime is YOU · cyan is your rival' : 'Running · lime is YOU';
+    if (next !== previous) { status.textContent = next; previous = next; }
+    storage.textContent = app.persistent ? '' : 'SESSION ONLY · runs survive here until this tab closes. Export in Operator. Spectator sync unavailable.';
+  };
   if (scene) applyScene(app, scene);
-  startLoop({ tick: () => (app.frozenNow === null ? app.tick() : undefined), frame: (a, dt) => app.frame(a, dt) });
+  startLoop({ tick: () => (app.frozenNow === null ? (app.tick(), announce()) : undefined), frame: (a, dt) => app.frame(a, dt) });
 }
 void boot();
