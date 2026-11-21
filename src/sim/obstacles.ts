@@ -1,6 +1,5 @@
 import type { Obstacle, ObstacleKind } from './course';
 
-/** Obstacle geometry in px (SPEC §4.2). y is measured up from the ground. */
 export const OBSTACLE_SIZE: Record<ObstacleKind, { w: number }> = {
   hurdle: { w: 24 },
   lowbar: { w: 120 },
@@ -10,7 +9,6 @@ export const OBSTACLE_SIZE: Record<ObstacleKind, { w: number }> = {
 
 export const HURDLE_H = 40;
 export const BAR_UNDERSIDE = 30;
-/** Bars and HIGH beams hang from the rafters: effectively unjumpable. */
 export const BAR_TOP = 1000;
 export const BEAM_TRIGGER = 160;
 
@@ -18,7 +16,6 @@ export const BEAM_UNLOCKED = -1;
 export const BEAM_LOW = 0;
 export const BEAM_HIGH = 1;
 
-/** Perfect windows: runner front to obstacle leading edge when the answering action starts. */
 export const PERFECT_WINDOW: Record<'jump' | 'slide' | 'pit', [number, number]> = {
   jump: [18, 54],
   slide: [12, 48],
@@ -29,10 +26,6 @@ export function obstacleWidth(o: Obstacle): number {
   return OBSTACLE_SIZE[o.kind].w;
 }
 
-/**
- * Solid box for a non-pit obstacle, or null if it has none.
- * beamState is only consulted for Switch Beams.
- */
 export function solidBox(o: Obstacle, beamState: number): [number, number] | null {
   switch (o.kind) {
     case 'hurdle':
@@ -48,7 +41,6 @@ export function solidBox(o: Obstacle, beamState: number): [number, number] | nul
   }
 }
 
-/** Which action answers this obstacle (for the Perfect window). */
 export function answerOf(o: Obstacle, beamState: number): 'jump' | 'slide' | 'pit' {
   if (o.kind === 'pit') return 'pit';
   if (o.kind === 'lowbar') return 'slide';
@@ -56,12 +48,10 @@ export function answerOf(o: Obstacle, beamState: number): 'jump' | 'slide' | 'pi
   return 'jump';
 }
 
-/** Reveal the authored answer; arrival Tick never changes the obstacle. */
 export function lockBeam(obstacle: Obstacle): number {
   return obstacle.beamAnswer === 'slide' ? BEAM_HIGH : BEAM_LOW;
 }
 
-/** Display name used in the Verdict. */
 export function obstacleName(kind: string): string {
   switch (kind) {
     case 'hurdle':

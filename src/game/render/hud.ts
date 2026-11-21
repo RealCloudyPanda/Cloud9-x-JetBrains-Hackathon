@@ -5,7 +5,6 @@ import { C, EASE_OUT, display, mono, tracked } from './theme';
 
 export interface Chip {
   gate: number;
-  /** Cumulative Delta at that gate, Ticks. */
   delta: number;
   worldX: number;
   at: number;
@@ -30,7 +29,6 @@ export function deltaColour(ticks: number): string {
 }
 
 export function drawHud(ctx: CanvasRenderingContext2D, v: HudView): void {
-  // Top bar.
   ctx.fillStyle = 'oklch(0.12 0.02 250 / 0.82)';
   ctx.fillRect(0, 0, W, 76);
   ctx.fillStyle = 'oklch(0.95 0.01 250 / 0.08)';
@@ -47,7 +45,6 @@ export function drawHud(ctx: CanvasRenderingContext2D, v: HudView): void {
   ctx.fillStyle = C.text;
   ctx.fillText(formatTime(v.tick), 40, 53);
 
-  // vs rival
   const vx = 260;
   ctx.font = display(13, 600);
   tracked(ctx, 13);
@@ -66,7 +63,6 @@ export function drawHud(ctx: CanvasRenderingContext2D, v: HudView): void {
     ctx.fillText(v.lastDelta < 0 ? 'AHEAD' : v.lastDelta > 0 ? 'BEHIND' : 'LEVEL', vx + tw + 12, 55);
   }
 
-  // Flow meter
   const fx = W - 360;
   const fw = 320;
   ctx.font = display(13, 600);
@@ -84,12 +80,10 @@ export function drawHud(ctx: CanvasRenderingContext2D, v: HudView): void {
   ctx.fillRect(fx, 48, fw, 8);
   ctx.fillStyle = v.flow < 1000 ? C.orange : C.lime;
   ctx.fillRect(fx, 48, Math.max(2, fw * t), 8);
-  // 1.00 tick
   const one = fx + fw * ((1000 - TUNING.flowMin) / (TUNING.flowMax - TUNING.flowMin));
   ctx.fillStyle = C.text;
   ctx.fillRect(one - 1, 44, 2, 16);
 
-  // Delta chips above gates.
   for (const chip of v.chips) {
     const age = v.now - chip.at;
     if (age > 2600) continue;

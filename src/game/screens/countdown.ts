@@ -2,7 +2,6 @@ import { C, display, tracked } from '../render/theme';
 import { W } from '../canvas';
 import { label } from '../render/ui';
 
-/** 3 · 2 · 1 · GO, each scaling in over 180 ms with ease-out. */
 export function drawCountdown(ctx: CanvasRenderingContext2D, elapsedMs: number, rivalInitials: string): void {
   const step = Math.min(3, Math.floor(elapsedMs / 1000));
   const age = elapsedMs - step * 1000;

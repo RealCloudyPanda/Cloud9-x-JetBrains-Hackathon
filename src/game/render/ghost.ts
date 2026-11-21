@@ -3,7 +3,6 @@ import { C } from './theme';
 
 const TRAIL = 6;
 
-/** Cyan 45 % runner with a short scanline trail of its recent positions. */
 export class GhostDrawer {
   private trail: { sx: number; y: number; sliding: boolean }[] = [];
 

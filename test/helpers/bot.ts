@@ -13,7 +13,6 @@ export function mulberry32(seed: number): () => number {
   };
 }
 
-/** A seeded button-masher: holds Jump/Slide for random stretches. */
 export function botRun(course: Course, seed: number): { sim: Sim; log: InputLog } {
   const rand = mulberry32(seed);
   const sim = createSim(course);

@@ -32,7 +32,6 @@ import { drawInitials, drawSubmitted } from './screens/initials';
 import { drawOperator, OPERATOR_ITEMS } from './screens/operator';
 import { Synth } from '../audio/synth';
 
-/** World zoom about the floor line so the runner reads from across a booth. */
 export const ZOOM = 1.4;
 function zoom(ctx: CanvasRenderingContext2D): void {
   ctx.translate(0, GROUND_Y);
@@ -77,7 +76,6 @@ export class App {
   private countdownStep = 0;
   reducedMotion = false;
   frozenNow: number | null = null;
-  /** Scripted input for screenshot scenes; null = the real keyboard/mouse. */
   maskOverride: ((sim: import('../sim/sim').Sim) => number) | null = null;
 
   constructor(private ctx: CanvasRenderingContext2D, private input: Input, private kv: KV, private clock: () => number, syncBoard = true) {
@@ -102,7 +100,6 @@ export class App {
     try {
       this.channel?.postMessage('changed');
     } catch {
-      /* monitor is optional */
     }
   }
 
@@ -184,8 +181,6 @@ export class App {
       this.opConfirm = false;
     }
   }
-
-  // ---- Fixed Tick -------------------------------------------------------
 
   tick(): void {
     const presses = this.input.presses();
@@ -387,8 +382,6 @@ export class App {
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
-
-  // ---- Render -----------------------------------------------------------
 
   frame(alpha: number, dt: number): void {
     const ctx = this.ctx;

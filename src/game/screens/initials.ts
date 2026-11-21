@@ -11,7 +11,6 @@ export interface InitialsView {
   idleFrac: number;
 }
 
-/** Arcade initials. Letter changes are instant: keyboard-driven UI never animates. */
 export function drawInitials(ctx: CanvasRenderingContext2D, v: InitialsView): void {
   ctx.fillStyle = 'oklch(0.12 0.02 250 / 0.94)';
   ctx.fillRect(0, 0, W, H);

@@ -12,7 +12,6 @@ export const OPERATOR_ITEMS = [
   { id: 'close', text: 'Close' },
 ] as const;
 
-/** Operator overlay. Focus moves instantly (keyboard UI, no animation) with a visible ring. */
 export function drawOperator(ctx: CanvasRenderingContext2D, s: Settings, focus: number, confirm: boolean, day: string, runs: number): void {
   ctx.fillStyle = 'oklch(0.08 0.02 250 / 0.86)';
   ctx.fillRect(0, 0, W, H);
@@ -50,7 +49,6 @@ export function drawOperator(ctx: CanvasRenderingContext2D, s: Settings, focus: 
   });
 }
 
-/** Mirror the selected canvas control in the live region, including confirmation and current value. */
 export function operatorStatus(settings: Settings, focus: number, confirm: boolean): string {
   const item = OPERATOR_ITEMS[focus];
   const value = item.id === 'sound' ? settings.sound : item.id === 'shake' ? settings.shake : item.id === 'house' ? settings.forceHouse : null;

@@ -3,7 +3,6 @@ import { FP } from '../sim/fixed';
 import { createRecorder, record, type Recorder } from '../sim/inputLog';
 import { createSim, step, type Sim } from '../sim/sim';
 
-/** One Run in progress: the player's sim and recorder, with previous positions for interpolation. */
 export class RunState {
   readonly sim: Sim;
   readonly rec: Recorder = createRecorder();
@@ -28,7 +27,6 @@ export class RunState {
     for (const e of this.sim.events) if (e.type === 'hit') this.hitAt[e.obstacle] = now;
   }
 
-  /** Interpolated runner position in px. */
   x(alpha: number): number {
     return (this.prevX + (this.sim.r.x - this.prevX) * alpha) / FP;
   }

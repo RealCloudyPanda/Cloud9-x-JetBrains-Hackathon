@@ -1,6 +1,5 @@
 import type { KV } from './storage';
 
-/** In-memory storage used by screenshot scenes so they never touch the real board. */
 export class MemoryKV implements KV {
   private map = new Map<string, string>();
   get length() {

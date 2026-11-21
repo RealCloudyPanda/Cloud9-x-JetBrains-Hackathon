@@ -1,4 +1,3 @@
-/** "Night broadcast" palette (SPEC §10). Canvas accepts oklch() strings in current Chrome/Edge/Safari/Firefox. */
 export const C = {
   ink: 'oklch(0.16 0.02 250)',
   inkDeep: 'oklch(0.12 0.02 250)',
@@ -30,11 +29,9 @@ export function mono(size: number, weight = 500): string {
   return `${weight} ${size}px ${FONT_MONO}`;
 }
 
-/** Uppercase display text with +4 % tracking. */
 export function tracked(ctx: CanvasRenderingContext2D, size: number): void {
   ctx.letterSpacing = `${(size * 0.04).toFixed(1)}px`;
 }
 
 export const EASE_OUT = (t: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3);
-/** cubic-bezier(0.23, 1, 0.32, 1) approximated: a strong ease-out. */
 export const EASE_OUT_STRONG = (t: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 5);

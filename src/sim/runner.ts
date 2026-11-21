@@ -1,7 +1,6 @@
 import { FP } from './fixed';
 import { TUNING } from './tuning';
 
-/** The runner's integer physics state. x is the back edge, y the feet height (both ×256). */
 export interface RunnerState {
   x: number;
   y: number;
@@ -13,7 +12,6 @@ export interface RunnerState {
   sliding: number;
   slideTicks: number;
   stumble: number;
-  /** Runner front (fixed-point) when the last Jump / Slide started. */
   jumpFront: number;
   slideFront: number;
 }
@@ -37,7 +35,6 @@ export function createRunner(): RunnerState {
   };
 }
 
-/** Front of the standing box: used for Perfect windows, triggers and splits so stance never shifts them. */
 export function front(r: RunnerState): number {
   return r.x + TUNING.runnerW * FP;
 }
@@ -52,10 +49,6 @@ export function boxH(r: RunnerState): number {
 
 export type RunnerEvent = 'jump' | 'slide' | 'land';
 
-/**
- * Handle Jump / Slide input for one Tick: buffer, coyote, slide minimum, jump start.
- * Returns the events it caused.
- */
 export function applyInput(r: RunnerState, mask: number, prevMask: number, out: RunnerEvent[]): void {
   const jumpHeld = (mask & 1) !== 0;
   const slideHeld = (mask & 2) !== 0;
@@ -90,10 +83,6 @@ export function applyInput(r: RunnerState, mask: number, prevMask: number, out: 
   }
 }
 
-/**
- * Vertical motion for one Tick. `supported` says whether floor exists under the box.
- * Semi-implicit Euler: velocity first, then position.
- */
 export function applyGravity(r: RunnerState, mask: number, supported: boolean, out: RunnerEvent[]): void {
   const jumpHeld = (mask & 1) !== 0;
   const slideHeld = (mask & 2) !== 0;
@@ -103,7 +92,6 @@ export function applyGravity(r: RunnerState, mask: number, supported: boolean, o
       r.coyote = TUNING.coyoteTicks;
       return;
     }
-    // Walked over a gap: start falling, coyote time running.
     r.grounded = 0;
     r.vy = 0;
   } else if (r.coyote > 0) {

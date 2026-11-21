@@ -42,7 +42,6 @@ export interface Sim {
   finished: number;
   dnf: number;
   finishTick: number;
-  /** Render-only output of the last step. Never read by the sim. */
   events: SimEvent[];
 }
 
@@ -72,7 +71,6 @@ export function createSim(course: Course): Sim {
   };
 }
 
-/** FNV-1a over every integer field that influences the future. */
 export function hashState(sim: Sim): number {
   const r = sim.r;
   const head = [
@@ -86,7 +84,6 @@ function segment(sim: Sim): number {
   return sim.gateIndex < sim.course.gates.length ? sim.gateIndex : sim.course.gates.length - 1;
 }
 
-/** True if any part of the runner box is over floor. */
 function isSupported(sim: Sim): boolean {
   const r = sim.r;
   const x0 = r.x;
@@ -152,7 +149,6 @@ function resolveObstacles(sim: Sim): void {
     const oe = (o.x + obstacleWidth(o)) * FP;
 
     if (o.kind === 'pit') {
-      // Fell in: the box is fully over the gap and has sunk below the lip.
       if (r.grounded === 0 && r.y < -20 * FP && r.x >= ox && r.x + boxW(r) <= oe) {
         hit(sim, i);
         r.x = oe;
@@ -179,7 +175,6 @@ function resolveObstacles(sim: Sim): void {
 
 const runnerEvents: RunnerEvent[] = [];
 
-/** Advance the simulation by exactly one Tick with the given input mask. */
 export function step(sim: Sim, mask: number): void {
   sim.events.length = 0;
   if (sim.finished) return;

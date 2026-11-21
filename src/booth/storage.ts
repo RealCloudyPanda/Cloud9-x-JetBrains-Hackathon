@@ -1,6 +1,5 @@
 import type { GhostRecord } from './record';
 
-/** The subset of the Web Storage API we use (so tests can pass a fake). */
 export interface KV {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
@@ -23,7 +22,6 @@ export interface Settings {
 }
 
 export interface Meta {
-  /** Board id: a calendar date, plus "~N" if the Operator started a new day on the same date. */
   currentDay: string;
   runCounter: number;
   relayStreak: number;
@@ -51,7 +49,6 @@ function safeParse<T>(text: string | null): T | null {
   }
 }
 
-/** Read meta, rolling over to a fresh board if the calendar date changed. */
 export function loadMeta(kv: KV, today: string): Meta {
   const m = safeParse<Meta>(kv.getItem(META_KEY));
   if (!m || typeof m.currentDay !== 'string') return freshMeta(today);
@@ -66,7 +63,6 @@ export function loadMeta(kv: KV, today: string): Meta {
   return { currentDay: m.currentDay, runCounter: counter(m.runCounter), relayStreak: counter(m.relayStreak), bestStreak: counter(m.bestStreak), settings };
 }
 
-/** Operator "Start new day": a new, empty board even if the date is unchanged. */
 export function startNewDay(kv: KV, meta: Meta, today: string): Meta {
   let id = today;
   for (let n = 2; kv.getItem(RUNS_PREFIX + id) !== null || id === meta.currentDay; n++) id = `${today}~${n}`;
@@ -84,7 +80,6 @@ export function loadRuns(kv: KV, day: string): GhostRecord[] {
     (r.inputs === null || Array.isArray(r.inputs)) && Number.isFinite(r.createdAt)) : [];
 }
 
-/** Today's top runs, fastest first (DNFs excluded). */
 export function topRuns(runs: GhostRecord[], n: number): GhostRecord[] {
   return runs
     .filter((r) => !r.dnf)
@@ -93,7 +88,6 @@ export function topRuns(runs: GhostRecord[], n: number): GhostRecord[] {
     .slice(0, n);
 }
 
-/** Drop inputs from anything that is neither recent nor top; cap the record count. */
 export function trimRuns(runs: GhostRecord[]): GhostRecord[] {
   const top = new Set(topRuns(runs, KEEP_INPUTS_TOP).map((r) => r.id));
   let out = runs;
@@ -113,7 +107,6 @@ function isQuota(e: unknown): boolean {
   return e instanceof Error && /quota/i.test(`${e.name} ${e.message}`);
 }
 
-/** Delete the oldest runs key that isn't `keepDay`. Returns true if something was deleted. */
 export function dropOldestDay(kv: KV, keepDay: string): boolean {
   const days: string[] = [];
   for (let i = 0; i < kv.length; i++) {
@@ -126,7 +119,6 @@ export function dropOldestDay(kv: KV, keepDay: string): boolean {
   return true;
 }
 
-/** setItem with one retry after freeing the oldest day on quota errors. */
 export function safeSet(kv: KV, key: string, value: string, keepDay: string): boolean {
   try {
     kv.setItem(key, value);
@@ -152,14 +144,12 @@ export function appendRun(kv: KV, day: string, record: GhostRecord): GhostRecord
   return runs;
 }
 
-/** Replace a stored record (used when Initials are entered after the Run was saved). */
 export function updateRun(kv: KV, day: string, id: string, patch: Partial<GhostRecord>): GhostRecord[] {
   const runs = loadRuns(kv, day).map((r) => (r.id === id ? { ...r, ...patch } : r));
   safeSet(kv, RUNS_PREFIX + day, JSON.stringify(runs), day);
   return runs;
 }
 
-/** Bytes used by this app's keys (UTF-16 length, as browsers count it). */
 export function storedBytes(kv: KV): number {
   let n = 0;
   for (let i = 0; i < kv.length; i++) {

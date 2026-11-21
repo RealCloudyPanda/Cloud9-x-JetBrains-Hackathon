@@ -8,10 +8,6 @@ export interface RivalChoice {
   kind: RivalKind;
 }
 
-/**
- * Champion run → today's fastest; otherwise the most recent Ghost; otherwise the House Ghost.
- * Only Ghosts of the current Course Version with stored inputs that `verify` accepts are eligible.
- */
 export function pickRival(
   runs: GhostRecord[],
   opts: { champion: boolean; version: string; house: GhostRecord; forceHouse?: boolean; verify: (r: GhostRecord) => boolean },

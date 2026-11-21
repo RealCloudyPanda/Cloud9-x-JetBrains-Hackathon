@@ -5,7 +5,6 @@ const CAP = 96;
 
 interface P { x: number; y: number; vx: number; vy: number; life: number; max: number; col: string; size: number }
 
-/** Render-only juice. Fixed-capacity particle pool; never feeds the sim. */
 export class Fx {
   private pool: P[] = Array.from({ length: CAP }, () => ({ x: 0, y: 0, vx: 0, vy: 0, life: 0, max: 1, col: '', size: 2 }));
   private words: { text: string; x: number; y: number; at: number; col: string }[] = [];
@@ -58,7 +57,6 @@ export class Fx {
     return [(Math.random() * 2 - 1) * this.shakeAmp * k, (Math.random() * 2 - 1) * this.shakeAmp * k];
   }
 
-  /** Vertical scale of the runner from jump stretch / land squash. */
   scaleY(now: number): number {
     const s = (now - this.stretchAt) / 80;
     if (s >= 0 && s < 2) return 1 + 0.15 * (s < 1 ? s : 2 - s);

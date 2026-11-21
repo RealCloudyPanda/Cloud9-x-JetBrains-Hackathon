@@ -14,7 +14,6 @@ import { createSim, step } from '../src/sim/sim';
 import { createRecorder, record } from '../src/sim/inputLog';
 import house from '../src/game/houseGhost.json';
 
-/** Fake BroadcastChannel hub: counts listeners so growth would show. */
 class FakeChannel {
   listeners = 0;
   sent = 0;
@@ -47,7 +46,6 @@ describe('endurance', () => {
         booth.update();
       }
       expect(booth.state).toBe('run');
-      // alternate a seeded masher and a skilled autopilot so both DNFs and fast runs appear
       let sim;
       let log;
       if (t % 2 === 0) ({ sim, log } = botRun(COURSE, t + 1));
@@ -72,7 +70,6 @@ describe('endurance', () => {
       saveMeta(kv, meta);
       runs = appendRun(kv, meta.currentDay, rec);
       booth.runFinished();
-      // half the players type initials, the rest walk away
       while (booth.state !== 'attract') {
         now += 250;
         if (booth.state === 'initials' && t % 2 === 0) {

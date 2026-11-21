@@ -1,6 +1,5 @@
 import type { KV } from '../../src/booth/storage';
 
-/** In-memory Storage with an optional byte quota that throws like browsers do. */
 export class FakeStorage implements KV {
   private map = new Map<string, string>();
   constructor(private quota = Infinity) {}

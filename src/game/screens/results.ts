@@ -21,7 +21,6 @@ export interface ResultsView {
   canSkip: boolean;
 }
 
-/** Broadcast lower-third: total, overall Delta, six-segment split bar, Verdict. */
 export function drawResults(ctx: CanvasRenderingContext2D, v: ResultsView): void {
   const a = v.ageMs;
   ctx.fillStyle = 'oklch(0.10 0.02 250 / 0.55)';
@@ -37,7 +36,6 @@ export function drawResults(ctx: CanvasRenderingContext2D, v: ResultsView): void
   ctx.textBaseline = 'alphabetic';
   const x = 64;
 
-  // Total time + overall Delta.
   const r1 = reveal(a, 60);
   ctx.globalAlpha = r1;
   label(ctx, `YOUR TIME · VS ${v.rivalInitials}`, x, top + 50 + (1 - r1) * 12, C.text2, 15);
@@ -58,14 +56,12 @@ export function drawResults(ctx: CanvasRenderingContext2D, v: ResultsView): void
     const word = Math.abs(v.overall) <= 1 ? 'LEVEL WITH' : v.overall < 0 ? 'AHEAD OF' : 'BEHIND';
     label(ctx, `${word} ${v.rivalInitials}`, dx + dw + 14, top + 132, col, 22);
   }
-  // Counts, right aligned.
   ctx.textAlign = 'right';
   label(ctx, `${v.perfects} PERFECT · ${v.hits} ${v.hits === 1 ? 'HIT' : 'HITS'}`, W - 64, top + 50, C.text2, 15);
   ctx.textAlign = 'left';
 
   label(ctx, 'YOUR RUN BECOMES THE NEXT PLAYER’S GHOST', x, top + 166, C.cyan, 14);
 
-  // Split bar.
   const barY = top + 190;
   const barW = W - 128;
   const total = v.segTicks.reduce((s, n) => s + Math.max(1, n), 0) || 1;
@@ -89,7 +85,6 @@ export function drawResults(ctx: CanvasRenderingContext2D, v: ResultsView): void
     sx += w;
   });
 
-  // Verdict.
   const r3 = reveal(a, 400, 400);
   ctx.globalAlpha = r3;
   drawParts(ctx, v.verdict, x, barY + 110 + (1 - r3) * 10, W - 128 - 260, 30, C.lime);

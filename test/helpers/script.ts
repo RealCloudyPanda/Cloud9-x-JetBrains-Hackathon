@@ -13,10 +13,6 @@ export function oneObstacle(o: Obstacle): Course {
   };
 }
 
-/**
- * Run until the runner front is within `dist` px of x, then hold `mask` for `holdTicks`, then release.
- * Stops once the obstacle at index 0 is resolved (or the run ends).
- */
 export function actAt(course: Course, x: number, dist: number, mask: number, holdTicks: number, maxTicks = 400): Sim {
   const sim = createSim(course);
   let started = -1;

@@ -5,20 +5,14 @@ import { OBS_PENDING, type Sim } from './sim';
 import { MASK_JUMP, MASK_SLIDE } from './tuning';
 
 export interface AutopilotOptions {
-  /** Distance (px) before the leading edge at which to act, per answer. */
   jumpAt: number;
   slideAt: number;
   pitAt: number;
-  /** Obstacle indices to deliberately answer with the wrong action. */
   mistakes: number[];
 }
 
 export const EXPERT: AutopilotOptions = { jumpAt: 36, slideAt: 30, pitAt: 18, mistakes: [] };
 
-/**
- * A scripted player that reads upcoming obstacles from sim state. Pure and deterministic,
- * used to generate the House Ghost, the Attract demo and test fixtures.
- */
 export function createAutopilot(opts: AutopilotOptions): (sim: Sim) => number {
   let holdJump = 0;
   let sliding = -1;
@@ -48,7 +42,6 @@ export function createAutopilot(opts: AutopilotOptions): (sim: Sim) => number {
       let answer = answerOf(o, sim.beams[i]);
       if (opts.mistakes.includes(i) && o.kind === 'beam') answer = sim.beams[i] === BEAM_HIGH ? 'jump' : 'slide';
       const at = (answer === 'slide' ? opts.slideAt : answer === 'pit' ? opts.pitAt : opts.jumpAt) * FP;
-      // scale the trigger with speed so fast runs still act inside the window
       if (d > at) break;
       if (answer === 'slide') {
         sliding = i;

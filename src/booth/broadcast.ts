@@ -1,7 +1,6 @@
 import { PREFIX, type KV } from './storage';
 
 export const LIVE_KEY = `${PREFIX}live`;
-// Expire a snapshot left behind by a crashed tab.
 const LIVE_TIMEOUT_MS = 30_000;
 
 export interface LiveRun {
@@ -29,7 +28,6 @@ export function saveLiveRun(kv: KV, live: LiveRun | null): void {
     if (live) kv.setItem(LIVE_KEY, JSON.stringify(live));
     else kv.removeItem(LIVE_KEY);
   } catch {
-    /* Transient updates must never interrupt gameplay. */
   }
 }
 
@@ -54,5 +52,5 @@ export function loadBoothStatus(kv: KV, now = Date.now()): BoothStatus | null {
   } catch { return null; }
 }
 export function saveBoothStatus(kv: KV, status: BoothStatus): void {
-  try { kv.setItem(STATUS_KEY, JSON.stringify(status)); } catch { /* optional monitor */ }
+  try { kv.setItem(STATUS_KEY, JSON.stringify(status)); } catch {   }
 }

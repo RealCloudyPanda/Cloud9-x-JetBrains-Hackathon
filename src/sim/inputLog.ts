@@ -1,4 +1,3 @@
-/** Input Log: change events [tick, mask]; a new event only when the mask changes (SPEC §6.1). */
 export type InputLog = [number, number][];
 
 export interface Recorder {
@@ -10,7 +9,6 @@ export function createRecorder(): Recorder {
   return { log: [], last: 0 };
 }
 
-/** Record the mask used for the step that starts at `tick`. */
 export function record(rec: Recorder, tick: number, mask: number): void {
   if (mask !== rec.last) {
     rec.log.push([tick, mask]);
@@ -28,7 +26,6 @@ export function createCursor(log: InputLog): Cursor {
   return { log, i: 0, mask: 0 };
 }
 
-/** Mask for `tick`. Ticks must be requested in non-decreasing order. */
 export function maskAt(c: Cursor, tick: number): number {
   while (c.i < c.log.length && c.log[c.i][0] <= tick) {
     c.mask = c.log[c.i][1];

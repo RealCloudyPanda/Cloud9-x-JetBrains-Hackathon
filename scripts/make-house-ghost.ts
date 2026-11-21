@@ -1,7 +1,3 @@
-/**
- * Generate src/game/houseGhost.json: the Ghost raced when no player Ghost exists yet.
- * Run: npm run house-ghost
- */
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { COURSE } from '../src/sim/course';

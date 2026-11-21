@@ -14,7 +14,6 @@ import type { KV } from '../booth/storage';
 
 const root = document.getElementById('board')!;
 const SAMPLE = new URLSearchParams(location.search).get('sample') === '1';
-/** ?sample=1 shows clearly labelled made-up rows (for screenshots); it never touches the real board. */
 function sampleKv(): KV {
   const kv = new MemoryKV();
   const day = dateKey(new Date());

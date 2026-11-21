@@ -1,4 +1,3 @@
-/** Shared by the House Ghost generator and tests. */
 import { COURSE } from '../src/sim/course';
 import { createSim, step } from '../src/sim/sim';
 import { createRecorder, record } from '../src/sim/inputLog';
@@ -16,6 +15,5 @@ export function runAutopilot(opts: AutopilotOptions) {
   return { sim, log: rec.log };
 }
 
-/** The House Ghost: a decent, beatable run that fumbles the second Switch Beam. */
 export const HOUSE: AutopilotOptions = { jumpAt: 62, slideAt: 60, pitAt: 34, mistakes: COURSE.obstacles.flatMap((o, i) => (o.kind === 'beam' && (o.x === 4620 || o.x === 7700 || o.x === 9580) ? [i] : [])) };
 

@@ -17,10 +17,6 @@ function validLog(inputs: InputLog | null, finishTick: number): inputs is InputL
   return true;
 }
 
-/**
- * A Ghost is a second sim stepped on the same Tick from a recorded Input Log.
- * If any gate hash differs from the one stored, the replay has drifted and is rejected.
- */
 export class GhostRunner {
   readonly sim: Sim;
   private cursor: Cursor;
@@ -63,7 +59,6 @@ export class GhostRunner {
   }
 }
 
-/** Replay a whole record headlessly and check its gate data and finish. */
 export function verifyGhost(course: Course, record: GhostRecord): boolean {
   const g = new GhostRunner(course, record);
   while (!g.sim.finished && !g.rejected) g.tick();

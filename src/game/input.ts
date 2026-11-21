@@ -14,15 +14,10 @@ export interface Press {
   mask: number;
 }
 
-/**
- * Keyboard and mouse → a live mask. The loop snapshots `mask` once per Tick; nothing
- * here touches the sim. Discrete presses are queued for menu screens.
- */
 export class Input {
   private keys = new Set<string>();
   private buttons = 0;
   private queue: Press[] = [];
-  /** Called synchronously on any press (used to unlock audio inside the gesture). */
   onAnyPress: (() => void) | null = null;
 
   constructor(target: HTMLElement) {
@@ -82,7 +77,6 @@ export class Input {
     return m;
   }
 
-  /** Drain queued presses. */
   presses(): Press[] {
     const q = this.queue;
     this.queue = [];

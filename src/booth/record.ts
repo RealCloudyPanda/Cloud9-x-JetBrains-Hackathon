@@ -12,7 +12,6 @@ export type GhostRecord = {
   hits: number[];
   perfects: number[];
   hitKinds: string[][];
-  /** Dropped (null) for old records to bound storage. */
   inputs: InputLog | null;
   rivalId: string | null;
   beatRival: boolean;

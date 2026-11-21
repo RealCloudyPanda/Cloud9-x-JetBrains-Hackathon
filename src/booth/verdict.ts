@@ -17,7 +17,6 @@ export type VerdictKind = 'dnf' | 'tie' | 'win' | 'loss';
 
 const SEGMENT_LINE = ['the warm-up', 'the Double Hurdles', 'the Switch Beams', 'the Pits', 'the mixed section', 'the final sprint'];
 
-/** Ties within 0.02 s (one Tick) are a dead heat. */
 export const TIE_TICKS = 1;
 
 function gateName(i: number, count: number): string {
@@ -32,7 +31,6 @@ function plural(n: number, word: string): string {
   return `${n} ${word}${n === 1 ? '' : 's'}`;
 }
 
-/** The one-sentence Verdict shown on Results (SPEC §6.4). */
 export function verdict(player: VerdictRun, rival: VerdictRun & { initials: string }): { kind: VerdictKind; parts: VerdictPart[] } {
   const n = player.splits.length;
   if (player.dnf) {

@@ -2,7 +2,6 @@ export const W = 1280;
 export const H = 720;
 export const GROUND_Y = 600;
 
-/** Fit a 1280×720 logical canvas into the window with letterbox bars, crisp at DPR ≤ 2. */
 export function setupCanvas(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
   const ctx = canvas.getContext('2d', { alpha: false })!;
   const fit = () => {

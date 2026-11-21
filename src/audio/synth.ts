@@ -1,4 +1,3 @@
-/** Tiny WebAudio synth: oscillator + gain envelope voices. No audio files. */
 export type Sfx = 'jump' | 'land' | 'slide' | 'perfect' | 'hit' | 'gate' | 'beep' | 'go' | 'finish' | 'best';
 
 export class Synth {
@@ -6,7 +5,6 @@ export class Synth {
   private master: GainNode | null = null;
   enabled = true;
 
-  /** Must be called inside a user gesture. */
   unlock(): void {
     if (this.ac) {
       if (this.ac.state === 'suspended') void this.ac.resume();

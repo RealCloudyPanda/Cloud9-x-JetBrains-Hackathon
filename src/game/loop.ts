@@ -1,10 +1,6 @@
 export const TICK_MS = 1000 / 60;
 export const MAX_TICKS_PER_FRAME = 5;
 
-/**
- * Pure accumulator step: how many whole Ticks to run for `elapsedMs` of real time.
- * Extra time beyond MAX_TICKS_PER_FRAME is dropped so a stalled tab never fast-forwards.
- */
 export function advanceAccumulator(acc: number, elapsedMs: number): { ticks: number; acc: number } {
   let next = acc + Math.max(0, elapsedMs);
   let ticks = Math.floor(next / TICK_MS);
@@ -22,7 +18,6 @@ export interface LoopHandlers {
   frame(alpha: number, dtMs: number): void;
 }
 
-/** requestAnimationFrame driver around advanceAccumulator. */
 export function startLoop(h: LoopHandlers): () => void {
   let acc = 0;
   let last = performance.now();

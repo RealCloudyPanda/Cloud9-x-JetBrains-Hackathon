@@ -8,12 +8,10 @@ export const CAMERA_X = 320;
 
 export interface WorldView {
   course: Course;
-  /** World px at the left edge of the screen. */
   camX: number;
   tick: number;
   obsState: number[];
   beams: number[];
-  /** Per-obstacle render time (ms) of the last Hit, for the orange flash. */
   hitAt: number[];
   now: number;
 }
@@ -40,7 +38,6 @@ function drawHurdle(ctx: CanvasRenderingContext2D, sx: number, stroke: string, g
 function drawBar(ctx: CanvasRenderingContext2D, sx: number, w: number, stroke: string, glow: string): void {
   const top = BAR_DRAW_TOP;
   const bottom = GROUND_Y - BAR_UNDERSIDE;
-  // cables to the rafters
   ctx.strokeStyle = 'oklch(0.86 0.08 300 / 0.35)';
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -50,17 +47,14 @@ function drawBar(ctx: CanvasRenderingContext2D, sx: number, w: number, stroke: s
   ctx.lineTo(sx + w - 6, top);
   ctx.stroke();
   neonRect(ctx, sx, top, w, bottom - top, stroke, glow);
-  // hazard ticks on the underside so the gap reads as "go under"
   ctx.fillStyle = stroke;
   for (let x = sx + 8; x < sx + w - 8; x += 16) ctx.fillRect(x, bottom - 8, 8, 3);
 }
 
-/** Floor line with gaps for Pits, obstacles, gate banners. */
 export function drawWorld(ctx: CanvasRenderingContext2D, v: WorldView): void {
   const { course, camX } = v;
   const obs = course.obstacles;
 
-  // Floor, broken by pits.
   ctx.strokeStyle = C.line;
   ctx.lineWidth = 3;
   ctx.beginPath();
@@ -77,11 +71,9 @@ export function drawWorld(ctx: CanvasRenderingContext2D, v: WorldView): void {
   ctx.lineTo(W + 10, GROUND_Y);
   ctx.stroke();
 
-  // Under-floor sheen.
   ctx.fillStyle = 'oklch(0.95 0.01 250 / 0.05)';
   ctx.fillRect(0, GROUND_Y + 2, W, 6);
 
-  // Gates.
   course.gates.forEach((gx, i) => {
     const sx = gx - camX;
     if (sx < -200 || sx > W) return;
@@ -112,7 +104,6 @@ export function drawWorld(ctx: CanvasRenderingContext2D, v: WorldView): void {
     ctx.letterSpacing = '0px';
   });
 
-  // Obstacles.
   for (let i = 0; i < obs.length; i++) {
     const o = obs[i];
     const w = obstacleWidth(o);
@@ -143,7 +134,6 @@ export function drawWorld(ctx: CanvasRenderingContext2D, v: WorldView): void {
         ctx.moveTo(sx + w, GROUND_Y);
         ctx.lineTo(sx + w, GROUND_Y + 40);
         ctx.stroke();
-        // lip markers
         ctx.fillStyle = 'oklch(0.72 0.19 45 / 0.8)';
         ctx.fillRect(sx - 10, GROUND_Y - 2, 10, 4);
         ctx.fillRect(sx + w, GROUND_Y - 2, 10, 4);
@@ -157,7 +147,6 @@ export function drawWorld(ctx: CanvasRenderingContext2D, v: WorldView): void {
         const g = locked ? glow : 'oklch(0.86 0.08 300 / 0.08)';
         if (shown === BEAM_LOW) drawHurdle(ctx, sx, s, g);
         else if (shown === BEAM_HIGH) drawBar(ctx, sx, w, s, g);
-        // trigger tick on the floor
         const tx = o.x - BEAM_TRIGGER - camX;
         ctx.fillStyle = locked ? 'oklch(0.95 0.01 250 / 0.25)' : 'oklch(0.95 0.01 250 / 0.6)';
         ctx.fillRect(tx - 1, GROUND_Y + 6, 2, 10);

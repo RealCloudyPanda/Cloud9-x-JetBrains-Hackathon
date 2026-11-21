@@ -1,7 +1,6 @@
 import { MemoryKV } from './memoryKv';
 import { PREFIX, type KV } from './storage';
 
-/** Keep the current relay usable when browser storage is denied or fills up. */
 export class SessionKV implements KV {
   private memory = new MemoryKV();
   persistent = true;

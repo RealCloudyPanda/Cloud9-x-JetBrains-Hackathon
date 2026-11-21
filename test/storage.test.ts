@@ -18,7 +18,7 @@ describe('storage', () => {
     const runs = Array.from({ length: 60 }, (_, i) => fakeRecord(`r${i}`, 2000 + (i < 5 ? -i * 10 : i)));
     const trimmed = trimRuns(runs);
     const withInputs = trimmed.filter((r) => r.inputs !== null).map((r) => r.id);
-    expect(withInputs.length).toBe(40); // 30 latest + 10 older top runs
+    expect(withInputs.length).toBe(40);
     expect(withInputs).toContain('r0');
     expect(trimmed.find((r) => r.id === 'r20')!.inputs).toBeNull();
   });

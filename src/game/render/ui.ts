@@ -1,7 +1,6 @@
 import { C, display, mono, tracked } from './theme';
 import type { VerdictPart } from '../../booth/verdict';
 
-/** Small uppercase label with tracking. */
 export function label(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, colour: string = C.text2, size = 14): number {
   ctx.font = display(size, 600);
   tracked(ctx, size);
@@ -12,7 +11,6 @@ export function label(ctx: CanvasRenderingContext2D, text: string, x: number, y:
   return w;
 }
 
-/** An outlined key cap with a glyph and a caption. Returns the width used. */
 export function keyCap(ctx: CanvasRenderingContext2D, glyph: string, caption: string, x: number, y: number, colour: string = C.text): number {
   const size = 52;
   ctx.lineWidth = 2;
@@ -35,7 +33,6 @@ export function keyCap(ctx: CanvasRenderingContext2D, glyph: string, caption: st
   return w;
 }
 
-/** Verdict sentence with strong parts highlighted, wrapped to maxW. */
 export function drawParts(ctx: CanvasRenderingContext2D, parts: VerdictPart[], x: number, y: number, maxW: number, size: number, strong: string): void {
   const words: { t: string; strong: boolean }[] = [];
   for (const p of parts) {
@@ -68,7 +65,6 @@ export function monoText(ctx: CanvasRenderingContext2D, text: string, x: number,
   return ctx.measureText(text).width;
 }
 
-/** Reveal helper: 0→1 over `dur` ms starting at `delay`. */
 export function reveal(age: number, delay: number, dur = 320): number {
   const t = Math.min(1, Math.max(0, (age - delay) / dur));
   return 1 - Math.pow(1 - t, 4);

@@ -4,14 +4,9 @@ export type BoothState = 'attract' | 'countdown' | 'run' | 'results' | 'initials
 
 export interface BoothHooks {
   enter?(state: BoothState, from: BoothState): void;
-  /** Initials auto-submitted after idle. */
   autoSubmit?(): void;
 }
 
-/**
- * The Turn state machine. It owns only *when* things happen; screens own what they show.
- * Every non-Run state has a timeout, so the booth can never get stuck.
- */
 export class Booth {
   state: BoothState = 'attract';
   enteredAt: number;
@@ -35,7 +30,6 @@ export class Booth {
     return this.clock() - this.enteredAt;
   }
 
-  /** A player press. Returns true if the machine consumed it. */
   press(opts: { champion?: boolean } = {}): boolean {
     this.lastInputAt = this.clock();
     switch (this.state) {
@@ -54,7 +48,6 @@ export class Booth {
     }
   }
 
-  /** Any input that keeps a screen alive (letter changes, menu navigation). */
   touch(): void {
     this.lastInputAt = this.clock();
   }
@@ -67,7 +60,6 @@ export class Booth {
     if (this.state === 'initials') this.go('submitted');
   }
 
-  /** Tab hidden: a Run is discarded; everything else just goes home. */
   hidden(): void {
     if (this.state !== 'attract') this.go('attract');
   }
@@ -81,7 +73,6 @@ export class Booth {
     if (this.state === 'operator') this.go('attract');
   }
 
-  /** Call every frame (or Tick). Applies all timeouts. */
   update(): void {
     const now = this.clock();
     const idle = now - this.lastInputAt;

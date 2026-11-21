@@ -1,19 +1,14 @@
-/** Course data (SPEC §4). Whole logical pixels; the sim converts to fixed-point. */
 export type ObstacleKind = 'hurdle' | 'lowbar' | 'pit' | 'beam';
 
 export interface Obstacle {
   kind: ObstacleKind;
-  /** Leading edge, px from the start line. */
   x: number;
-  /** Set on both halves of a Double Hurdle. */
   tag?: 'double';
-  /** Fixed course answer, concealed until the trigger line. */
   beamAnswer?: 'jump' | 'slide';
 }
 
 export interface Course {
   length: number;
-  /** Split Gate positions; the last one is the Finish. */
   gates: number[];
   gateLabels: string[];
   segmentNames: string[];
@@ -35,22 +30,15 @@ export const COURSE: Course = {
   gateLabels: ['G1', 'G2', 'G3', 'G4', 'G5', 'FIN'],
   segmentNames: ['WARM-UP', 'RHYTHM', 'SWITCH', 'PITS', 'MIXED', 'SPRINT'],
   obstacles: [
-    // S1 WARM-UP: learn both buttons
     h(620), bar(1040), h(1420), h(1660),
-    // S2 RHYTHM: even Double Hurdles, a Perfect chain is possible
     ...dbl(2020), ...dbl(2560), ...dbl(3100),
-    // S3 SWITCH: read the beam, react
     beam(3920, 'jump'), h(4260), beam(4620, 'slide'), h(4960), beam(5260, 'jump'),
-    // S4 PITS: held jumps, a Low Bar right after a landing
     pit(5640), h(5990), pit(6260), bar(6560), pit(6960),
-    // S5 MIXED: everything, tighter
     h(7400), beam(7700, 'slide'), pit(8010), bar(8330), ...dbl(8620),
-    // S6 SPRINT: two beams, a Double, then a clear run where Flow pays off
     beam(9240, 'jump'), beam(9580, 'slide'), ...dbl(9900),
   ],
 };
 
-/** A flat Course with a few Hurdles, used by early physics tests. */
 export const FLAT_COURSE: Course = {
   length: 3000,
   gates: [500, 1000, 1500, 2000, 2500, 3000],

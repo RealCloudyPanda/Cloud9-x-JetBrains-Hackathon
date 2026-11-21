@@ -30,7 +30,6 @@ async function boot(): Promise<void> {
   try {
     await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1500))]);
   } catch {
-    /* fonts are optional */
   }
   const scene = params.get('scene');
   const store = scene ? new MemoryKV() : browserStorage();

@@ -2,10 +2,6 @@ import type { App } from './app';
 import { createAutopilot } from '../sim/autopilot';
 import { COURSE } from '../sim/course';
 
-/**
- * `?scene=attract|run|results|initials` freezes a deterministic frame (for screenshots and judges).
- * The player is a scripted autopilot racing the House Ghost; storage is in-memory only.
- */
 export function applyScene(app: App, scene: string): void {
   const beams = (xs: number[]) => COURSE.obstacles.flatMap((o, i) => (o.kind === 'beam' && xs.includes(o.x) ? [i] : []));
   const pilot = createAutopilot({ jumpAt: 40, slideAt: 34, pitAt: 20, mistakes: beams([3920, 5260]) });
@@ -26,7 +22,6 @@ export function applyScene(app: App, scene: string): void {
   }
   app.maskOverride = null;
   if (scene === 'run') {
-    // keep the chips fresh for the frame
     app.chips.forEach((c, i) => (c.at = t0 - 300 - i * 50));
     app.frozenNow = t0;
     return;

@@ -1,6 +1,5 @@
 export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-/** A small block-list for a public booth screen; anything here becomes "???". */
 const BLOCKED = new Set(['ASS', 'FUK', 'FUC', 'FCK', 'SEX', 'KKK', 'NIG', 'FAG', 'CUM', 'TIT', 'DIK', 'DIC', 'COK', 'JEW', 'NAZ', 'SHT', 'WTF', 'GAY', 'HOE', 'PUS', 'VAG', 'ANL', 'RAP']);
 
 export function cleanInitials(text: string): string {

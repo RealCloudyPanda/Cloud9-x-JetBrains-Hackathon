@@ -18,7 +18,6 @@ export interface AttractView {
 }
 
 export function drawAttract(ctx: CanvasRenderingContext2D, v: AttractView): void {
-  // Left scrim so the type always reads over the moving course.
   const g = ctx.createLinearGradient(0, 0, 760, 0);
   g.addColorStop(0, 'oklch(0.12 0.02 250 / 0.92)');
   g.addColorStop(0.7, 'oklch(0.12 0.02 250 / 0.6)');
@@ -29,7 +28,6 @@ export function drawAttract(ctx: CanvasRenderingContext2D, v: AttractView): void
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
 
-  // Wordmark.
   ctx.fillStyle = C.lime;
   ctx.fillRect(64, 58, 10, 30);
   ctx.fillStyle = C.cyan;
@@ -42,7 +40,6 @@ export function drawAttract(ctx: CanvasRenderingContext2D, v: AttractView): void
   ctx.fillText('GHOST RELAY', 104, 85);
   ctx.letterSpacing = '0px';
 
-  // Rival block.
   const kind = v.rivalKind === 'house' ? 'STARTER · HOUSE GHOST' : v.rivalKind === 'champion' ? "TODAY'S CHAMPION" : 'THE LAST PLAYER';
   label(ctx, `NEXT RIVAL · ${kind}`, 64, 222, C.text2, 16);
   ctx.font = display(128, 700);
@@ -60,14 +57,12 @@ export function drawAttract(ctx: CanvasRenderingContext2D, v: AttractView): void
   const tw = ctx.measureText(t).width;
   label(ctx, v.rivalDnf ? 'DID NOT FINISH' : 'SECONDS', 64 + tw + 14, 408, C.text2, 18);
 
-  // Controls.
   const y = 548;
   let x = 64;
   x += keyCap(ctx, '↑', 'JUMP', x, y) + 40;
   keyCap(ctx, '↓', 'SLIDE', x, y);
   label(ctx, 'HOLD ↑ TO JUMP HIGHER · MOUSE WORKS TOO', 64, y + 58, C.text3, 13);
 
-  // Pulsing call to action (ambient, not input-driven, so it may animate).
   const pulse = v.reducedMotion ? 1 : 0.55 + 0.45 * (0.5 + 0.5 * Math.sin(v.now / 380));
   ctx.globalAlpha = pulse;
   ctx.font = display(26, 700);
@@ -77,7 +72,6 @@ export function drawAttract(ctx: CanvasRenderingContext2D, v: AttractView): void
   ctx.letterSpacing = '0px';
   ctx.globalAlpha = 1;
 
-  // Right column: streak, runs, champion hint.
   ctx.textAlign = 'right';
   label(ctx, 'RELAY STREAK', W - 64, 70, C.text2, 14);
   ctx.textAlign = 'right';
