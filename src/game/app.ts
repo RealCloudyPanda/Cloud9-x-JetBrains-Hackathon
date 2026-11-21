@@ -196,7 +196,7 @@ export class App {
         this.attract.tick();
         if (this.attract.sim.finished || this.attract.rejected) this.resetAttract();
         for (const p of presses) {
-          if ((p.ctrl && p.shift) || p.kind === 'slide') continue;
+          if ((p.ctrl && p.shift) || p.kind === 'slide' || p.code === 'Tab' || p.code === 'Escape') continue;
           this.booth.press({ champion: p.kind === 'jump' && (p.mask & MASK_SLIDE) !== 0 });
           break;
         }
@@ -213,7 +213,7 @@ export class App {
         this.tickRun(now);
         break;
       case 'results':
-        if (presses.some((p) => !(p.ctrl && p.shift) && p.kind !== 'slide-release')) this.booth.press();
+        if (presses.some((p) => !(p.ctrl && p.shift) && p.kind !== 'slide-release' && p.code !== 'Tab')) this.booth.press();
         break;
       case 'initials':
         for (const p of presses) {
@@ -351,8 +351,8 @@ export class App {
   private operatorPress(p: Press): void {
     this.booth.touch();
     if (p.code === 'Escape') return this.booth.closeOperator();
-    if (p.code === 'ArrowDown' || p.code === 'Tab') this.opFocus = (this.opFocus + 1) % OPERATOR_ITEMS.length;
-    else if (p.code === 'ArrowUp') this.opFocus = (this.opFocus + OPERATOR_ITEMS.length - 1) % OPERATOR_ITEMS.length;
+    if (p.code === 'ArrowDown' || (p.code === 'Tab' && !p.shift)) this.opFocus = (this.opFocus + 1) % OPERATOR_ITEMS.length;
+    else if (p.code === 'ArrowUp' || (p.code === 'Tab' && p.shift)) this.opFocus = (this.opFocus + OPERATOR_ITEMS.length - 1) % OPERATOR_ITEMS.length;
     else if (p.code === 'Enter' || p.code === 'Space') this.operatorAction(OPERATOR_ITEMS[this.opFocus].id);
     if (OPERATOR_ITEMS[this.opFocus].id !== 'newday') this.opConfirm = false;
   }

@@ -186,3 +186,10 @@ it('completes a mouse-only turn and starts the next run on the new calendar day'
   expect(loadLiveRun(store, '2026-11-21')?.rival).toBe(app.rival.record.initials);
   expect(loadLiveRun(store, '2026-11-20')).toBeNull();
 });
+
+it('Tab and Escape preserve attract so booth tools can receive focus', () => {
+  const { app, tap, tick } = booth();
+  tap('Tab'); tick();
+  tap('Escape'); tick();
+  expect(app.booth.state).toBe('attract');
+});

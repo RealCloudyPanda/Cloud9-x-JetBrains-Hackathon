@@ -27,6 +27,7 @@ export class Input {
 
   constructor(target: HTMLElement) {
     window.addEventListener('keydown', (e) => {
+      if ((e.target as HTMLElement | null)?.closest?.('a, button, input, select, textarea')) return;
       if (JUMP_KEYS.has(e.code) || SLIDE_KEYS.has(e.code) || e.code.startsWith('Arrow')) e.preventDefault();
       if (e.repeat || MODIFIERS.test(e.code)) return;
       this.keys.add(e.code);
