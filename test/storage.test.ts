@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { FakeStorage } from './helpers/fakeStorage';
 import { fakeRecord } from './helpers/records';
-import { appendRun, loadMeta, loadRuns, saveMeta, startNewDay, topRuns, trimRuns, MAX_RECORDS, RUNS_PREFIX, safeSet, updateRun } from '../src/booth/storage';
+import { appendRun, loadMeta, loadRuns, saveMeta, startNewDay, topRuns, trimRuns, MAX_RECORDS, META_KEY, RUNS_PREFIX, safeSet, updateRun } from '../src/booth/storage';
 import { nextStreak } from '../src/booth/streak';
 
 describe('storage', () => {
@@ -68,4 +68,14 @@ describe('storage', () => {
     expect(nextStreak(2, true)).toBe(3);
     expect(nextStreak(2, false)).toBe(0);
   });
+});
+
+it('ignores corrupt record rows and normalizes invalid settings and counters', () => {
+  const kv = new FakeStorage();
+  kv.setItem(RUNS_PREFIX + 'today', JSON.stringify([null, 1, {}, fakeRecord('valid', 1800)]));
+  expect(loadRuns(kv, 'today').map(r => r.id)).toEqual(['valid']);
+  kv.setItem(META_KEY, JSON.stringify({ currentDay: '2026-11-20', runCounter: 'bad', relayStreak: -1, settings: {sound:'yes', shake:false} }));
+  const m = loadMeta(kv, '2026-11-20');
+  expect(m.runCounter).toBe(0); expect(m.relayStreak).toBe(0);
+  expect(m.settings.sound).toBe(true); expect(m.settings.shake).toBe(false);
 });

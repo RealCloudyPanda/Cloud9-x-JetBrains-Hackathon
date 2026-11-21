@@ -55,11 +55,15 @@ function safeParse<T>(text: string | null): T | null {
 export function loadMeta(kv: KV, today: string): Meta {
   const m = safeParse<Meta>(kv.getItem(META_KEY));
   if (!m || typeof m.currentDay !== 'string') return freshMeta(today);
-  const settings = { ...DEFAULT_SETTINGS, ...(m.settings ?? {}) };
-  if (!m.currentDay.startsWith(today)) {
+  const settings = { ...DEFAULT_SETTINGS };
+  for (const key of ['sound', 'shake', 'forceHouse'] as const) {
+    if (typeof m.settings?.[key] === 'boolean') settings[key] = m.settings[key];
+  }
+  if (m.currentDay !== today && !new RegExp(`^${today}~[2-9][0-9]*$`).test(m.currentDay)) {
     return { ...freshMeta(today), settings };
   }
-  return { ...freshMeta(today), ...m, settings };
+  const counter = (n: number) => Number.isSafeInteger(n) && n >= 0 ? n : 0;
+  return { currentDay: m.currentDay, runCounter: counter(m.runCounter), relayStreak: counter(m.relayStreak), bestStreak: counter(m.bestStreak), settings };
 }
 
 /** Operator "Start new day": a new, empty board even if the date is unchanged. */
@@ -73,7 +77,11 @@ export function startNewDay(kv: KV, meta: Meta, today: string): Meta {
 
 export function loadRuns(kv: KV, day: string): GhostRecord[] {
   const runs = safeParse<GhostRecord[]>(kv.getItem(RUNS_PREFIX + day));
-  return Array.isArray(runs) ? runs : [];
+  return Array.isArray(runs) ? runs.filter((r): r is GhostRecord => !!r && typeof r === 'object' &&
+    typeof r.id === 'string' && typeof r.initials === 'string' && typeof r.courseVersion === 'string' &&
+    Number.isSafeInteger(r.finishTick) && r.finishTick > 0 && typeof r.dnf === 'boolean' &&
+    Array.isArray(r.splits) && Array.isArray(r.gateHashes) && Array.isArray(r.hits) && Array.isArray(r.perfects) && Array.isArray(r.hitKinds) &&
+    (r.inputs === null || Array.isArray(r.inputs)) && Number.isFinite(r.createdAt)) : [];
 }
 
 /** Today's top runs, fastest first (DNFs excluded). */
