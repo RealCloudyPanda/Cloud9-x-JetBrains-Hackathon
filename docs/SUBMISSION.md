@@ -55,3 +55,55 @@ Recording notes:
 **Elevator pitch** (≤200 chars):
 
 > Race the ghost of the player who went right before you. Two buttons, 30 seconds, a gate-by-gate verdict on where you lost, and a second-monitor leaderboard that needs no Wi-Fi.
+
+**About the project** (Devpost's markdown field):
+
+```markdown
+## The problem
+A booth volunteer has a queue of strangers and one laptop. A high-score table means little to the person in
+line: the number at the top was set hours ago by someone who left. What they actually watched was the player
+in front of them. Booth games also fail the volunteer: stuck screens, tutorials nobody reads, and
+leaderboards that need Wi-Fi.
+
+## What it does
+Ghost Relay is a 30-second neon sprint with two buttons, jump and slide. You race a translucent Ghost of the
+player who went right before you. At each of six Split Gates a Delta shows whether you're ahead or behind,
+and the Results screen gives one plain sentence about where you lost or gained the most time, such as
+"You lost 0.42 s at Gate 3: 2 hits on the Switch Beam." Then you enter your initials and your run becomes
+the Ghost for the next person in line. Switch Beams reveal whether to jump or slide only at the last moment,
+so it is a reaction drill as well as a race.
+
+It is built for real booths: an attract screen, idle timeouts on every screen, arcade initials, a champion
+mode, a hidden operator panel to start a new day, and a live leaderboard for a second monitor that syncs
+between windows with no network at all.
+
+## How I built it
+TypeScript, Vite and Canvas 2D, with a Web Audio synth and no audio files. A Ghost is not a recording of
+positions: it is the player's input log (typically under 1.3 KB) replayed through the same deterministic
+simulation. The simulation uses integer fixed-point maths with no clocks, randomness or floats in its state,
+and stores a state hash at every Split Gate, so a replay that drifts is rejected instead of shown wrong.
+The leaderboard monitor syncs with BroadcastChannel and storage events and restores from localStorage.
+
+[[OWNER: which JetBrains tools you used and what each did, from your real use.]]
+
+## Proof it holds up at a booth
+From the test suite (Vitest, 61 tests): 2,000 of 2,000 seeded bot runs replayed identically on the flat
+course and 2,000 of 2,000 on the full course; a 1,000-turn endurance run kept 40 of 40 stored Ghosts
+replay-verified. A test also scans the simulation source for `Math.random`, `Date`,
+`performance` and DOM globals.
+
+## Challenges
+Keeping replays exact meant treating the step number as the clock: input is sampled once per 60 Hz tick
+and the simulation only ever sees that bitmask. Any change to physics would silently break old Ghosts, so
+the course version is a hash of the course data and every tuning constant, and changing either retires old
+Ghosts automatically.
+
+## What's next
+[[OWNER: from real playtests: what players found hard, what you changed.]] Not yet built: finish slow-motion
+and a synth drone that follows the player's speed.
+
+## Built with AI assistance
+This project was built with significant AI assistance. Planning documents and much of the implementation
+were drafted by AI coding agents from my brief and reviewed by running them. [[OWNER: your JetBrains/Junie
+workflow.]] All test numbers come from actual runs.
+```
