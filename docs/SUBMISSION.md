@@ -113,3 +113,15 @@ workflow.]] All test numbers come from actual runs.
 **Try it out:** [[hosted demo URL once GitHub Pages is live]] · `https://github.com/RealCloudyPanda/Cloud9-x-JetBrains-Hackathon`
 
 **Category:** Category 3: Event Mini Game
+
+**Methodology write-up** (required field; facts pre-filled, judgement calls are yours):
+
+> Category 3 asks for a booth game that a stranger understands instantly, that resets cleanly between players, and that stays responsive over a long day. I designed around one booth fact: the rival people care about is the person they just watched, not a high score from hours ago. So every run is raced against the previous player's Ghost, and the end screen names the gate where you lost the most time.
+>
+> To make Ghosts trustworthy I chose a deterministic integer simulation that replays input logs, with a hash at every gate that rejects any replay that drifts. The test suite checks this with 4,000 seeded bot replays and a 1,000-turn endurance run. For booth reliability every screen has an idle timeout back to Attract, a hidden operator panel starts a new day, and the second-monitor leaderboard syncs locally with no Wi-Fi.
+>
+> [[OWNER: what you changed after real playtests, and how the JetBrains tools fit into your process.]]
+
+**Tooling explanation** (required field): [[OWNER ONLY: which JetBrains IDE / Junie / Air you used and what each did. Do not submit until this is real.]]
+
+**Bonus prize URL:** link to `AI_SHOWCASE.md` on GitHub once you've filled it, or to a short video of your JetBrains workflow.
