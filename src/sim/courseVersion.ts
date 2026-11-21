@@ -13,7 +13,7 @@ export function courseVersion(course: Course): string {
     HURDLE_H,
     BAR_UNDERSIDE,
     BEAM_TRIGGER,
-    sim: 3,
+    sim: 4,
   });
   return fnv1aString(text).toString(16).padStart(8, '0');
 }

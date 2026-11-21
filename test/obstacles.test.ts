@@ -39,16 +39,16 @@ describe('obstacles', () => {
     expect(tap.r.x).toBeGreaterThanOrEqual(630 * FP);
   });
 
-  it('Switch Beam locks LOW on even trigger Ticks and HIGH on odd', () => {
-    expect(lockBeam(10)).toBe(BEAM_LOW);
-    expect(lockBeam(11)).toBe(BEAM_HIGH);
+  it('Switch Beam reveals its fixed course answer at the trigger line', () => {
+    expect(lockBeam({ kind: 'beam', x: 500, beamAnswer: 'jump' })).toBe(BEAM_LOW);
+    expect(lockBeam({ kind: 'beam', x: 500, beamAnswer: 'slide' })).toBe(BEAM_HIGH);
     const sim = createSim(oneObstacle({ kind: 'beam', x: 500 }));
     let lockTick = -1;
     while (!sim.finished && lockTick < 0) {
       step(sim, 0);
       if (sim.events.some((e) => e.type === 'beamLock')) lockTick = sim.tick;
     }
-    expect(sim.beams[0]).toBe(lockTick % 2 === 0 ? BEAM_LOW : BEAM_HIGH);
+    expect(sim.beams[0]).toBe(BEAM_LOW);
   });
 
   it('a no-input Run on the full Course finishes before the cap', () => {

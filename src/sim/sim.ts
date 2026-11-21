@@ -145,7 +145,7 @@ function resolveObstacles(sim: Sim): void {
     const ox = o.x * FP;
     if (ox - BEAM_TRIGGER * FP > f) break;
     if (o.kind === 'beam' && sim.beams[i] === BEAM_UNLOCKED && f >= ox - BEAM_TRIGGER * FP) {
-      sim.beams[i] = lockBeam(sim.tick);
+      sim.beams[i] = lockBeam(o);
       sim.events.push({ type: 'beamLock', obstacle: i });
     }
     if (sim.obsState[i] !== OBS_PENDING) continue;

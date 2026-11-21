@@ -56,9 +56,9 @@ export function answerOf(o: Obstacle, beamState: number): 'jump' | 'slide' | 'pi
   return 'jump';
 }
 
-/** Lock rule: LOW if the trigger Tick is even, else HIGH (SPEC §4.2). */
-export function lockBeam(triggerTick: number): number {
-  return (triggerTick & 1) === 0 ? BEAM_LOW : BEAM_HIGH;
+/** Reveal the authored answer; arrival Tick never changes the obstacle. */
+export function lockBeam(obstacle: Obstacle): number {
+  return obstacle.beamAnswer === 'slide' ? BEAM_HIGH : BEAM_LOW;
 }
 
 /** Display name used in the Verdict. */

@@ -7,6 +7,8 @@ export interface Obstacle {
   x: number;
   /** Set on both halves of a Double Hurdle. */
   tag?: 'double';
+  /** Fixed course answer, concealed until the trigger line. */
+  beamAnswer?: 'jump' | 'slide';
 }
 
 export interface Course {
@@ -25,7 +27,7 @@ const dbl = (x: number): Obstacle[] => [
 ];
 const bar = (x: number): Obstacle => ({ kind: 'lowbar', x });
 const pit = (x: number): Obstacle => ({ kind: 'pit', x });
-const beam = (x: number): Obstacle => ({ kind: 'beam', x });
+const beam = (x: number, beamAnswer: 'jump' | 'slide'): Obstacle => ({ kind: 'beam', x, beamAnswer });
 
 export const COURSE: Course = {
   length: 10800,
@@ -38,13 +40,13 @@ export const COURSE: Course = {
     // S2 RHYTHM: even Double Hurdles, a Perfect chain is possible
     ...dbl(2020), ...dbl(2560), ...dbl(3100),
     // S3 SWITCH: read the beam, react
-    beam(3920), h(4260), beam(4620), h(4960), beam(5260),
+    beam(3920, 'jump'), h(4260), beam(4620, 'slide'), h(4960), beam(5260, 'jump'),
     // S4 PITS: held jumps, a Low Bar right after a landing
     pit(5640), h(5990), pit(6260), bar(6560), pit(6960),
     // S5 MIXED: everything, tighter
-    h(7400), beam(7700), pit(8010), bar(8330), ...dbl(8620),
+    h(7400), beam(7700, 'slide'), pit(8010), bar(8330), ...dbl(8620),
     // S6 SPRINT: two beams, a Double, then a clear run where Flow pays off
-    beam(9240), beam(9580), ...dbl(9900),
+    beam(9240, 'jump'), beam(9580, 'slide'), ...dbl(9900),
   ],
 };
 
