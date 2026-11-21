@@ -410,7 +410,7 @@ export class App {
       const ghost = this.ghost;
       if (ghost && !ghost.rejected) {
         const gx = ghost.x(alpha);
-        this.ghostDrawer.draw(ctx, { sx: gx - camX, y: ghost.y(alpha), sliding: ghost.sim.r.sliding === 1, airborne: ghost.sim.r.grounded === 0, scaleY: 1, phase: run.sim.tick / 60 + 0.3 }, gx, camX, ghost.record.initials);
+        this.ghostDrawer.draw(ctx, { sx: gx - camX, y: ghost.y(alpha), sliding: ghost.sim.r.sliding === 1, airborne: ghost.sim.r.grounded === 0, scaleY: 1, phase: run.sim.tick / 60 + 0.3 }, gx, camX, `${this.rival.kind === 'house' ? 'STARTER' : this.rival.kind === 'champion' ? 'CHAMPION' : 'LAST PLAYER'} · ${ghost.record.initials}`);
       }
       const stumbling = run.sim.r.stumble > 0 && Math.floor(now / 60) % 2 === 0;
       drawRunner(
@@ -419,6 +419,12 @@ export class App {
         stumbling ? C.orange : C.lime,
         C.ink,
       );
+      ctx.save();
+      ctx.font = '700 14px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = C.lime;
+      ctx.fillText('YOU ▼', CAMERA_X / ZOOM + 14, GROUND_Y - run.y(alpha) - (run.sim.r.sliding ? 38 : 64));
+      ctx.restore();
       this.drawSpeedLines(ctx, run.sim.flow, camX);
       this.fx.draw(ctx, now, dt, state === 'run' ? camDx : 0);
       ctx.restore();

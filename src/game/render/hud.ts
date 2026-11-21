@@ -41,7 +41,7 @@ export function drawHud(ctx: CanvasRenderingContext2D, v: HudView): void {
   ctx.font = display(13, 600);
   tracked(ctx, 13);
   ctx.fillStyle = C.text2;
-  ctx.fillText('TIME', 40, 26);
+  ctx.fillText('YOU · TIME', 40, 26);
   ctx.letterSpacing = '0px';
   ctx.font = mono(34, 600);
   ctx.fillStyle = C.text;
