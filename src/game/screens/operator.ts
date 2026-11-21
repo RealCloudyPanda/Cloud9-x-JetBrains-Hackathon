@@ -49,3 +49,11 @@ export function drawOperator(ctx: CanvasRenderingContext2D, s: Settings, focus: 
     }
   });
 }
+
+/** Mirror the selected canvas control in the live region, including confirmation and current value. */
+export function operatorStatus(settings: Settings, focus: number, confirm: boolean): string {
+  const item = OPERATOR_ITEMS[focus];
+  const value = item.id === 'sound' ? settings.sound : item.id === 'shake' ? settings.shake : item.id === 'house' ? settings.forceHouse : null;
+  const action = item.id === 'newday' && confirm ? 'Press Enter again to clear today' : item.text;
+  return `Operator panel · ${focus + 1} of ${OPERATOR_ITEMS.length} · ${action}${value === null ? '' : value ? ' · ON' : ' · OFF'} · arrows move · Enter selects · Escape closes`;
+}

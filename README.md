@@ -113,8 +113,8 @@ jump peaks: tap 49.3 px, full hold 82.5 px
 flat: 2000/2000 replays matched; largest log 343 bytes
 full: 2000/2000 replays matched; largest log 1248 bytes
 endurance: 1000 turns, mean run 31.40 s, 40/40 stored ghosts replay-verified, 499224 bytes stored, listeners 1
-Test Files  16 passed (16)
-Tests  69 passed (69)
+Test Files  17 passed (17)
+Tests  71 passed (71)
 ```
 
 The production build also passed two complete turns in headless Chromium with keyboard-only and mouse-only input. A second window recovered live splits after reloading with BroadcastChannel disabled. Both pages loaded from local build files under the Pages subpath. A separate Chromium check verified native heartbeat connection and expiry after the player tab closed, safe Tab navigation, the visible Operator button, and the SESSION ONLY warning when browser storage was denied.
@@ -136,7 +136,7 @@ docs/             SPEC, PLAN, GRILL, RESEARCH, ADRs, METHODOLOGY template, image
 
 ## Storage recovery and accessible controls
 
-The game labels the lime runner **YOU** and the cyan runner with its rival name. The opening screen explains the starter ghost, and Results explains that this run becomes the next rival. Tab reaches the spectator link and Operator button without starting a run; screen readers receive state announcements. Reduced motion removes ambient pulses and reveals as well as camera effects.
+The game labels the lime runner **YOU** and the cyan runner with its rival name. The opening screen explains the starter ghost, and Results explains that this run becomes the next rival. Tab reaches the spectator link and Operator button without starting a run. Opening Operator transfers focus to the game so arrows, Enter and Escape work immediately; each arrow press moves one row, and Tab keeps native browser navigation. Screen readers receive the selected operator item, toggle values and reset confirmation as well as game state announcements. Clicking the canvas restores game keyboard focus after using booth links. Reduced motion removes ambient pulses and reveals as well as camera effects.
 
 If localStorage is denied or fills during play, the current tab keeps its relay in memory and shows **SESSION ONLY**. Export runs from Operator before closing the tab. This fallback does not persist across reloads and cannot sync a spectator window. Existing incompatible Course Versions are excluded from best-time comparisons and spectator ranks.
 

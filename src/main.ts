@@ -11,6 +11,7 @@ import { applyScene } from './game/scenes';
 import { saveBoothStatus } from './booth/broadcast';
 import { browserStorage } from './booth/sessionKv';
 import { MemoryKV } from './booth/memoryKv';
+import { operatorStatus } from './game/screens/operator';
 
 const params = new URLSearchParams(location.search);
 const canvas = document.getElementById('game') as HTMLCanvasElement;
@@ -43,7 +44,10 @@ async function boot(): Promise<void> {
   });
   window.addEventListener('pagehide', () => app.booth.hidden());
   if (!scene) setInterval(() => saveBoothStatus(store, { state: document.hidden ? 'hidden' : app.booth.state, day: app.meta.currentDay, updatedAt: Date.now(), persistent: app.persistent }), 1000);
-  document.getElementById('operator')?.addEventListener('click', () => app.booth.openOperator());
+  document.getElementById('operator')?.addEventListener('click', () => {
+    app.booth.openOperator();
+    if (app.booth.state === 'operator') canvas.focus({ preventScroll: true });
+  });
   const status = document.getElementById('game-status')!;
   const storage = document.getElementById('storage-status')!;
   let previous = '';
@@ -53,7 +57,7 @@ async function boot(): Promise<void> {
       : state === 'submitted' ? `Relay handed to ${app.result?.record.initials}. Next player races your ghost.`
       : state === 'initials' ? `Sign your ghost · ${app.letters.join('')} · letter ${app.slot + 1}`
       : state === 'results' ? app.result?.verdict.map(p => p.text).join('') ?? 'Results'
-      : state === 'operator' ? 'Operator panel · arrows move · Enter selects · Escape closes'
+      : state === 'operator' ? operatorStatus(app.meta.settings, app.opFocus, app.opConfirm)
       : state === 'countdown' ? 'Get ready · lime is YOU · cyan is your rival' : 'Running · lime is YOU';
     if (next !== previous) { status.textContent = next; previous = next; }
     storage.textContent = app.persistent ? '' : 'SESSION ONLY · runs survive here until this tab closes. Export in Operator. Spectator sync unavailable.';

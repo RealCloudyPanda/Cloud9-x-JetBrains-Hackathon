@@ -203,3 +203,18 @@ it('a retired course record cannot suppress a current-course personal best', () 
   expect(app.booth.state).toBe('results');
   expect(app.result?.newBest).toBe(true);
 });
+
+it('operator arrow presses move once and Tab remains native browser navigation', () => {
+  const { app, tap, tick } = booth();
+  app.booth.openOperator();
+  tap('ArrowDown'); tick();
+  expect(app.opFocus).toBe(1);
+  tap('Enter'); tick();
+  expect(app.meta.settings.sound).toBe(false);
+  tap('Tab'); tick();
+  expect(app.opFocus).toBe(1);
+  tap('ArrowUp'); tick();
+  expect(app.opFocus).toBe(0);
+  tap('Enter'); tick();
+  expect(app.opConfirm).toBe(true);
+});

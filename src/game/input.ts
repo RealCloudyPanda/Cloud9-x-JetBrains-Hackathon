@@ -39,6 +39,7 @@ export class Input {
     window.addEventListener('blur', () => this.clear());
     target.addEventListener('mousedown', (e) => {
       e.preventDefault();
+      target.focus?.({ preventScroll: true });
       if (e.button === 0) this.buttons |= MASK_JUMP;
       if (e.button === 2) this.buttons |= MASK_SLIDE;
       this.push(e.button === 0 ? 'jump' : e.button === 2 ? 'slide' : 'other', `Mouse${e.button}`, false, false);

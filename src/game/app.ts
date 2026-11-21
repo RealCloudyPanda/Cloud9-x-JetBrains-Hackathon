@@ -349,10 +349,11 @@ export class App {
   }
 
   private operatorPress(p: Press): void {
+    if (p.kind === 'slide-release') return;
     this.booth.touch();
     if (p.code === 'Escape') return this.booth.closeOperator();
-    if (p.code === 'ArrowDown' || (p.code === 'Tab' && !p.shift)) this.opFocus = (this.opFocus + 1) % OPERATOR_ITEMS.length;
-    else if (p.code === 'ArrowUp' || (p.code === 'Tab' && p.shift)) this.opFocus = (this.opFocus + OPERATOR_ITEMS.length - 1) % OPERATOR_ITEMS.length;
+    if (p.code === 'ArrowDown') this.opFocus = (this.opFocus + 1) % OPERATOR_ITEMS.length;
+    else if (p.code === 'ArrowUp') this.opFocus = (this.opFocus + OPERATOR_ITEMS.length - 1) % OPERATOR_ITEMS.length;
     else if (p.code === 'Enter' || p.code === 'Space') this.operatorAction(OPERATOR_ITEMS[this.opFocus].id);
     if (OPERATOR_ITEMS[this.opFocus].id !== 'newday') this.opConfirm = false;
   }
