@@ -42,7 +42,7 @@ export function drawAttract(ctx: CanvasRenderingContext2D, v: AttractView): void
   ctx.letterSpacing = '0px';
 
   // Rival block.
-  const kind = v.rivalKind === 'house' ? 'HOUSE GHOST' : v.rivalKind === 'champion' ? "TODAY'S CHAMPION" : 'THE LAST PLAYER';
+  const kind = v.rivalKind === 'house' ? 'STARTER · HOUSE GHOST' : v.rivalKind === 'champion' ? "TODAY'S CHAMPION" : 'THE LAST PLAYER';
   label(ctx, `NEXT RIVAL · ${kind}`, 64, 222, C.text2, 16);
   ctx.font = display(128, 700);
   tracked(ctx, 128);
@@ -91,7 +91,7 @@ export function drawAttract(ctx: CanvasRenderingContext2D, v: AttractView): void
   }
   if (v.sample) {
     ctx.textAlign = 'right';
-    label(ctx, 'SAMPLE MODE · RACING THE SHIPPED HOUSE GHOST', W - 64, 640, C.orange, 13);
+    label(ctx, 'STARTER RUN · SCRIPTED HOUSE GHOST · YOUR RUN BECOMES THE NEXT RIVAL', W - 64, 640, C.orange, 13);
   }
   ctx.textAlign = 'left';
 }

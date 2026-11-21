@@ -63,6 +63,8 @@ export function drawResults(ctx: CanvasRenderingContext2D, v: ResultsView): void
   label(ctx, `${v.perfects} PERFECT · ${v.hits} ${v.hits === 1 ? 'HIT' : 'HITS'}`, W - 64, top + 50, C.text2, 15);
   ctx.textAlign = 'left';
 
+  label(ctx, 'YOUR RUN BECOMES THE NEXT PLAYER’S GHOST', x, top + 166, C.cyan, 14);
+
   // Split bar.
   const barY = top + 190;
   const barW = W - 128;
@@ -109,7 +111,7 @@ export function drawResults(ctx: CanvasRenderingContext2D, v: ResultsView): void
   }
   if (v.canSkip) {
     ctx.textAlign = 'right';
-    label(ctx, 'ANY KEY · CONTINUE', W - 64, H - 30, C.text3, 13);
+    label(ctx, 'SIGN YOUR GHOST · ANY KEY', W - 64, H - 30, C.text3, 13);
     ctx.textAlign = 'left';
   }
 }
