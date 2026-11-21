@@ -125,3 +125,10 @@ workflow.]] All test numbers come from actual runs.
 **Tooling explanation** (required field): [[OWNER ONLY: which JetBrains IDE / Junie / Air you used and what each did. Do not submit until this is real.]]
 
 **Bonus prize URL:** link to `AI_SHOWCASE.md` on GitHub once you've filled it, or to a short video of your JetBrains workflow.
+
+## Before you press submit
+- [ ] JetBrains pass done; `AI_SHOWCASE.md` and `docs/METHODOLOGY.md` filled from real use.
+- [ ] GitHub Pages deployed and the link tested in a private window.
+- [ ] Video under 3:00, public on YouTube, numbers on screen from the filmed run.
+- [ ] Every `[[OWNER]]` line above replaced or removed.
+- [ ] Submit by Jan 10; the deadline is Jan 12, 2:00 PM ET.
