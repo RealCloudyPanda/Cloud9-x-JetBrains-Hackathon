@@ -51,6 +51,26 @@ describe('obstacles', () => {
     expect(sim.beams[0]).toBe(BEAM_LOW);
   });
 
+  it('different arrival speeds reveal identical authored answers', () => {
+    const course = oneObstacle({ kind: 'beam', x: 500, beamAnswer: 'slide' });
+    const lockTicks: number[] = [];
+    for (const flow of [650, 1000, 1400]) {
+      const sim = createSim(course);
+      sim.flow = flow;
+      expect(sim.beams[0]).toBe(-1);
+      while (sim.beams[0] < 0) step(sim, 0);
+      lockTicks.push(sim.tick);
+      expect(sim.beams[0]).toBe(BEAM_HIGH);
+    }
+    expect(new Set(lockTicks).size).toBeGreaterThan(1);
+  });
+
+  it('changing a beam answer retires old replay versions', () => {
+    const jump = oneObstacle({ kind: 'beam', x: 500, beamAnswer: 'jump' });
+    const slide = oneObstacle({ kind: 'beam', x: 500, beamAnswer: 'slide' });
+    expect(courseVersion(jump)).not.toBe(courseVersion(slide));
+  });
+
   it('a no-input Run on the full Course finishes before the cap', () => {
     const sim = createSim(COURSE);
     while (!sim.finished) step(sim, 0);
