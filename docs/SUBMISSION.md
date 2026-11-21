@@ -47,3 +47,11 @@ Recording notes:
 - Every number on screen must come from the run you film. The test output above matched exactly on 2026-11-21.
 - Keep Cloud9 and Riot logos out of the frame, and use no copyrighted music. The game's own synth audio is fine.
 - Upload to YouTube as **public**, then check the length is under 3:00.
+
+## Devpost text
+
+**Project name:** Ghost Relay
+
+**Elevator pitch** (≤200 chars):
+
+> Race the ghost of the player who went right before you. Two buttons, 30 seconds, a gate-by-gate verdict on where you lost, and a second-monitor leaderboard that needs no Wi-Fi.
