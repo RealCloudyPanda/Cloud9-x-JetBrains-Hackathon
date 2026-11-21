@@ -4,7 +4,7 @@ import '@fontsource/jetbrains-mono/600.css';
 import '@fontsource/jetbrains-mono/700.css';
 import './style.css';
 import { dateKey, loadMeta, loadRuns, topRuns, META_KEY, RUNS_PREFIX } from '../booth/storage';
-import { LIVE_KEY, loadLiveRun, openChannel } from '../booth/broadcast';
+import { LIVE_KEY, STATUS_KEY, loadBoothStatus, loadLiveRun, openChannel } from '../booth/broadcast';
 import { formatDelta, formatTime } from '../sim/splits';
 
 import { MemoryKV } from '../booth/memoryKv';
@@ -22,7 +22,13 @@ function sampleKv(): KV {
   kv.setItem(META_KEY, JSON.stringify({ currentDay: day, runCounter: runs.length, relayStreak: 3, bestStreak: 4, settings: {} }));
   return kv;
 }
-const store: KV = SAMPLE ? sampleKv() : localStorage;
+let storageAvailable = true;
+function monitorStore(): KV {
+  if (SAMPLE) return sampleKv();
+  try { const store = window.localStorage; store.getItem(META_KEY); return store; }
+  catch { storageAvailable = false; return new MemoryKV(); }
+}
+const store = monitorStore();
 const LABELS = ['G1', 'G2', 'G3', 'G4', 'G5', 'FIN'];
 let lastTopId = '';
 
@@ -58,7 +64,12 @@ function render(): void {
   } else {
     now = `<section class="panel now"><h2>Last run</h2><div class="label">Waiting for the first player</div></section>`;
   }
-  root.innerHTML = `${SAMPLE ? '<div class="sample">SAMPLE MODE · MADE-UP ROWS FOR PREVIEW</div>' : ''}
+  const station = SAMPLE ? null : loadBoothStatus(store);
+  const connection = !storageAvailable ? 'Storage unavailable · open the player page in a browser profile that permits local storage.'
+    : station?.state === 'hidden' ? 'Player page hidden · return it to the foreground to play.'
+    : station ? `Player station connected · ${station.state.toUpperCase()}`
+    : 'Waiting for player station · open the game in this browser profile. Saved rows remain below.';
+  root.innerHTML = `${SAMPLE ? '<div class="sample">SAMPLE MODE · MADE-UP ROWS FOR PREVIEW</div>' : `<div class="connection" role="status">${esc(connection)} <a href="./">Open player station</a> · <button id="refresh">Refresh monitor</button></div>`}
     <section><h1>Today's top 10</h1><ol>${rows}</ol></section>
     <section>${now}
       <div class="stats">
@@ -66,14 +77,15 @@ function render(): void {
         <div><div class="label">Runs today</div><div class="big" style="color:var(--text)">${meta.runCounter}</div></div>
       </div>
     </section>`;
+  document.getElementById('refresh')?.addEventListener('click', render);
 }
 
 if (!SAMPLE) {
   openChannel()?.addEventListener('message', render);
   window.addEventListener('storage', (e) => {
-    if (e.storageArea === store && (!e.key || e.key === META_KEY || e.key === LIVE_KEY || e.key.startsWith(RUNS_PREFIX))) render();
+    if (e.storageArea === store && (!e.key || e.key === META_KEY || e.key === LIVE_KEY || e.key === STATUS_KEY || e.key.startsWith(RUNS_PREFIX))) render();
   });
   document.addEventListener('visibilitychange', () => !document.hidden && render());
-  setInterval(render, 5000);
+  setInterval(render, 2000);
 }
 render();
