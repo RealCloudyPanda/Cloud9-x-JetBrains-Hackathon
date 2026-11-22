@@ -11,7 +11,8 @@ import { Board } from '../booth/board';
 import { type RivalChoice } from '../booth/rival';
 import { type GhostRecord } from '../booth/record';
 import { verdict, type VerdictPart } from '../booth/verdict';
-import { openChannel, saveLiveRun, type LiveRun } from '../booth/broadcast';
+import { openChannel } from '../booth/broadcast';
+import { LiveFeed } from '../booth/liveFeed';
 import houseJson from './houseGhost.json';
 import { RunState } from './run';
 import { InitialsEntry } from './initialsEntry';
@@ -69,8 +70,7 @@ export class App {
   finishAt = 0;
   private ghostDrawer = new GhostDrawer();
   private attractDrawer = new GhostDrawer();
-  private channel: BroadcastChannel | null;
-  private liveRun: LiveRun | null = null;
+  private feed: LiveFeed;
   private lastCam = 0;
   private countdownStep = 0;
   reducedMotion = false;
@@ -78,7 +78,7 @@ export class App {
   maskOverride: ((sim: import('../sim/sim').Sim) => number) | null = null;
 
   constructor(private ctx: CanvasRenderingContext2D, private input: Input, private kv: KV, private clock: () => number, syncBoard = true) {
-    this.channel = syncBoard ? openChannel() : null;
+    this.feed = new LiveFeed(kv, syncBoard ? openChannel() : null);
     this.booth = new Booth(clock, { enter: (s, from) => this.onEnter(s, from), autoSubmit: () => this.submitInitials(true) });
     this.board = new Board(kv, VERSION);
     this.rival = this.chooseRival(false);
@@ -92,19 +92,6 @@ export class App {
   applySettings(): void {
     this.synth.enabled = this.meta.settings.sound;
     this.fx.shakeEnabled = this.meta.settings.shake && !this.reducedMotion;
-  }
-
-  private notifyBoard(): void {
-    try {
-      this.channel?.postMessage('changed');
-    } catch {
-    }
-  }
-
-  private publishLiveRun(): void {
-    if (this.liveRun) this.liveRun.updatedAt = Date.now();
-    saveLiveRun(this.kv, this.liveRun);
-    this.notifyBoard();
   }
 
   private chooseRival(champion: boolean): RivalChoice {
@@ -143,18 +130,14 @@ export class App {
     if (s === 'run') {
       this.input.clear();
       this.synth.play('go');
-      this.liveRun = { day: this.meta.currentDay, rival: this.rival.record.initials, deltas: COURSE.gates.map(() => null), updatedAt: 0 };
-      this.publishLiveRun();
+      this.feed.start(this.meta.currentDay, this.rival.record.initials, COURSE.gates.length);
     }
     if (s === 'initials') {
       this.input.clear();
       this.initials.reset();
     }
     if (s === 'attract') {
-      if (from === 'run') {
-        this.liveRun = null;
-        this.publishLiveRun();
-      }
+      if (from === 'run') this.feed.clear();
       this.input.clear();
       this.run = null;
       this.ghost = null;
@@ -251,10 +234,7 @@ export class App {
           if (d !== null) this.chips.push({ gate: e.gate, delta: d, worldX: COURSE.gates[e.gate], at: now });
           this.lastGate = e.gate;
           this.synth.play('gate');
-          if (this.liveRun) {
-            this.liveRun.deltas[e.gate] = d;
-            this.publishLiveRun();
-          }
+          this.feed.gate(e.gate, d);
           break;
         }
         default:
@@ -271,8 +251,7 @@ export class App {
     this.result = { record, rival, verdict: verdict(record, rival).parts, newBest };
     this.finishAt = now;
     this.synth.play(newBest ? 'best' : 'finish');
-    this.liveRun = null;
-    this.publishLiveRun();
+    this.feed.clear();
     this.booth.runFinished();
   }
 
@@ -284,7 +263,7 @@ export class App {
   submitInitials(auto: boolean): void {
     if (!this.result) return;
     this.board.initials(this.result.record, auto ? '???' : this.initials.text);
-    this.notifyBoard();
+    this.feed.notify();
     if (!auto) this.booth.initialsDone();
   }
 
@@ -300,8 +279,7 @@ export class App {
     if (id === 'close') return this.booth.closeOperator();
     if (id === 'newday') {
       this.board.newDay();
-      this.liveRun = null;
-      this.publishLiveRun();
+      this.feed.clear();
     } else if (id === 'sound') this.board.settings({ sound: !s.sound });
     else if (id === 'shake') this.board.settings({ shake: !s.shake });
     else if (id === 'house') this.board.settings({ forceHouse: !s.forceHouse });
