@@ -1,7 +1,9 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { loadLiveRun } from '../src/booth/broadcast';
 import { MemoryKV } from '../src/booth/memoryKv';
-import { loadRuns } from '../src/booth/storage';
+import { appendRun, dateKey, loadRuns } from '../src/booth/storage';
+import type { GhostRecord } from '../src/booth/record';
+import { fakeRecord } from './helpers/records';
 import { TIMERS } from '../src/booth/timers';
 import { App } from '../src/game/app';
 import { verifyGhost } from '../src/game/ghost';
@@ -11,11 +13,12 @@ import { createAutopilot } from '../src/sim/autopilot';
 import { COURSE } from '../src/sim/course';
 import { MASK_JUMP, MASK_SLIDE, TUNING } from '../src/sim/tuning';
 
-function booth() {
+function booth(seed: GhostRecord[] = []) {
   const window = new EventTarget();
   const canvas = new EventTarget() as HTMLElement;
   vi.stubGlobal('window', window);
   const store = new MemoryKV();
+  for (const record of seed) appendRun(store, dateKey(new Date()), record);
   const input = new Input(canvas);
   let now = 0;
   const app = new App({} as CanvasRenderingContext2D, input, store, () => now, false);
@@ -195,9 +198,7 @@ it('Tab and Escape preserve attract so booth tools can receive focus', () => {
 });
 
 it('a retired course record cannot suppress a current-course personal best', () => {
-  const { app, tap, tick, play } = booth();
-  const old = { ...app.rival.record, id: 'retired', courseVersion: 'old-physics', finishTick: 1 };
-  app.runs.push(old);
+  const { app, tap, tick, play } = booth([fakeRecord('retired', 1, { courseVersion: 'old-physics' })]);
   tap('Enter'); tick(); tick(TIMERS.countdown);
   play(() => {});
   expect(app.booth.state).toBe('results');

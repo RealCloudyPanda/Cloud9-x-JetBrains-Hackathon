@@ -7,59 +7,62 @@ import { cleanInitials } from './initials';
 import { appendRun, dateKey, loadMeta, loadRuns, saveMeta, startNewDay, topRuns, updateRun, type KV, type Meta, type Settings } from './storage';
 
 export class Board {
-  meta: Meta;
+  private state: Meta;
   private records: GhostRecord[];
 
   constructor(private kv: KV, readonly version: string, private today = () => dateKey(new Date())) {
-    this.meta = loadMeta(kv, today());
-    this.records = loadRuns(kv, this.meta.currentDay);
+    this.state = loadMeta(kv, today());
+    this.records = loadRuns(kv, this.state.currentDay);
   }
 
-  get runs(): GhostRecord[] { return this.records; }
-  get currentRuns(): GhostRecord[] { return this.records.filter(r => r.courseVersion === this.version); }
-  get top(): GhostRecord[] { return topRuns(this.currentRuns, 10); }
-  get last(): GhostRecord | undefined { return this.currentRuns.at(-1); }
-  get champion(): GhostRecord | undefined { return topRuns(this.currentRuns.filter(r => r.inputs), 1)[0]; }
+  get meta(): Readonly<Omit<Meta, 'settings'>> & { readonly settings: Readonly<Settings> } {
+    return { ...this.state, settings: { ...this.state.settings } };
+  }
+  get runs(): readonly GhostRecord[] { return structuredClone(this.records); }
+  private get currentRuns(): GhostRecord[] { return this.records.filter(r => r.courseVersion === this.version); }
+  get top(): GhostRecord[] { return structuredClone(topRuns(this.currentRuns, 10)); }
+  get last(): GhostRecord | undefined { return structuredClone(this.currentRuns.at(-1)); }
+  get champion(): GhostRecord | undefined { return structuredClone(topRuns(this.currentRuns.filter(r => r.inputs), 1)[0]); }
 
   refresh(): void {
-    this.meta = loadMeta(this.kv, this.today());
-    this.records = loadRuns(this.kv, this.meta.currentDay);
+    this.state = loadMeta(this.kv, this.today());
+    this.records = loadRuns(this.kv, this.state.currentDay);
   }
 
   refreshDay(): void {
-    if (this.meta.currentDay.split('~')[0] !== this.today()) this.refresh();
+    if (this.state.currentDay.split('~')[0] !== this.today()) this.refresh();
   }
 
   newDay(): void {
-    this.meta = startNewDay(this.kv, this.meta, this.today());
+    this.state = startNewDay(this.kv, this.state, this.today());
     this.records = [];
   }
 
   settings(patch: Partial<Settings>): void {
-    Object.assign(this.meta.settings, patch);
-    saveMeta(this.kv, this.meta);
+    Object.assign(this.state.settings, patch);
+    saveMeta(this.kv, this.state);
   }
 
   rival(champion: boolean, house: GhostRecord, verify: (record: GhostRecord) => boolean): RivalChoice {
-    return pickRival(this.records, { champion, house, verify, version: this.version, forceHouse: this.meta.settings.forceHouse });
+    return structuredClone(pickRival(this.records, { champion, house, verify, version: this.version, forceHouse: this.state.settings.forceHouse }));
   }
 
   finish(sim: Sim, inputs: InputLog, rival: GhostRecord, createdAt: number): { record: GhostRecord; newBest: boolean } {
     const prevBest = this.top[0];
     const beatRival = !sim.dnf && (rival.dnf || sim.finishTick < rival.finishTick - 1);
     const record = recordFromSim(sim, inputs, {
-      id: `${this.meta.currentDay}-${++this.meta.runCounter}`, initials: '???', courseVersion: this.version,
+      id: `${this.state.currentDay}-${++this.state.runCounter}`, initials: '???', courseVersion: this.version,
       rivalId: rival.id, beatRival, createdAt,
     });
-    this.meta.relayStreak = nextStreak(this.meta.relayStreak, beatRival);
-    this.meta.bestStreak = Math.max(this.meta.bestStreak, this.meta.relayStreak);
-    saveMeta(this.kv, this.meta);
-    this.records = appendRun(this.kv, this.meta.currentDay, record);
+    this.state.relayStreak = nextStreak(this.state.relayStreak, beatRival);
+    this.state.bestStreak = Math.max(this.state.bestStreak, this.state.relayStreak);
+    saveMeta(this.kv, this.state);
+    this.records = appendRun(this.kv, this.state.currentDay, structuredClone(record));
     return { record, newBest: !record.dnf && (!prevBest || record.finishTick < prevBest.finishTick) };
   }
 
   initials(record: GhostRecord, text: string): void {
     record.initials = cleanInitials(text);
-    this.records = updateRun(this.kv, this.meta.currentDay, record.id, { initials: record.initials });
+    this.records = updateRun(this.kv, this.state.currentDay, record.id, { initials: record.initials });
   }
 }

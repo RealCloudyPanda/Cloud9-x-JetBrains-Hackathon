@@ -1,0 +1,92 @@
+import { expect, it } from 'vitest';
+import { Board } from '../src/booth/board';
+import { MemoryKV } from '../src/booth/memoryKv';
+import { SessionKV } from '../src/booth/sessionKv';
+import { META_KEY, RUNS_PREFIX } from '../src/booth/storage';
+import { createSim } from '../src/sim/sim';
+import { COURSE } from '../src/sim/course';
+import { fakeRecord } from './helpers/records';
+
+it('completes Turns, updates initials, ranks the current course and recovers the same board', () => {
+  const store = new MemoryKV();
+  const today = () => '2026-11-20';
+  store.setItem(RUNS_PREFIX + today(), JSON.stringify([fakeRecord('retired', 1, { courseVersion: 'retired' })]));
+  const board = new Board(store, 'v1', today);
+  const rival = fakeRecord('house', 1800);
+  const sim = createSim(COURSE);
+  sim.finishTick = 1700;
+  const first = board.finish(sim, [[0, 1]], rival, 10);
+  board.initials(first.record, 'zed');
+  expect(first.newBest).toBe(true);
+  expect(first.record.initials).toBe('ZED');
+  expect(board.meta.relayStreak).toBe(1);
+  expect(board.top.map(r => r.id)).toEqual([first.record.id]);
+  expect(board.rival(false, rival, () => true).record.initials).toBe('ZED');
+  sim.finishTick = 1800;
+  const second = board.finish(sim, [], rival, 20);
+  expect(second.newBest).toBe(false);
+  expect(board.meta.relayStreak).toBe(0);
+  expect(board.meta.bestStreak).toBe(1);
+  expect(board.last?.id).toBe(second.record.id);
+  const recovered = new Board(store, 'v1', today);
+  expect(recovered.runs).toEqual(board.runs);
+  expect(recovered.meta).toEqual(board.meta);
+});
+
+it('preserves settings across operator resets and calendar rollover without reviving retired ghosts', () => {
+  const store = new MemoryKV();
+  let day = '2026-11-20';
+  const board = new Board(store, 'v1', () => day);
+  board.settings({ sound: false, forceHouse: true });
+  const house = fakeRecord('house', 1800);
+  expect(board.rival(true, house, () => true).kind).toBe('house');
+  board.newDay();
+  expect(board.meta.currentDay).toBe(day + '~2');
+  expect(board.runs).toEqual([]);
+  expect(new Board(store, 'v1', () => day).meta.currentDay).toBe(day + '~2');
+  board.refreshDay();
+  expect(board.meta.currentDay).toBe(day + '~2');
+  day = '2026-11-21';
+  board.refreshDay();
+  expect(board.meta.currentDay).toBe(day);
+  expect(board.meta.settings.sound).toBe(false);
+  expect(board.meta.runCounter).toBe(0);
+});
+
+it('normalizes corrupt storage and keeps completed Turns in session mode when writes fail', () => {
+  const backing = new MemoryKV();
+  const day = '2026-11-20';
+  backing.setItem(RUNS_PREFIX + day, JSON.stringify([null, {}, fakeRecord('valid', 1800)]));
+  backing.setItem(META_KEY, JSON.stringify({ currentDay: day, runCounter: 'bad', relayStreak: -1, settings: { sound: 'yes', shake: false } }));
+  const store = new SessionKV(backing);
+  const board = new Board(store, 'v1', () => day);
+  expect(board.meta.runCounter).toBe(0);
+  expect(board.meta.settings).toEqual({ sound: true, shake: false, forceHouse: false });
+  expect(board.runs.map(r => r.id)).toEqual(['valid']);
+  backing.setItem = () => { throw new Error('QuotaExceededError'); };
+  const sim = createSim(COURSE);
+  sim.finishTick = 1700;
+  const { record } = board.finish(sim, [[0, 1]], fakeRecord('house', 1800), 10);
+  board.initials(record, 'ACE');
+  expect(store.persistent).toBe(false);
+  expect(new Board(store, 'v1', () => day).last?.initials).toBe('ACE');
+});
+
+it('owns its state when callers change returned views and completed records', () => {
+  const store = new MemoryKV();
+  const board = new Board(store, 'v1', () => '2026-11-20');
+  const meta = board.meta as { runCounter: number; settings: { sound: boolean } };
+  meta.runCounter = 900;
+  meta.settings.sound = false;
+  const sim = createSim(COURSE);
+  sim.finishTick = 1700;
+  const { record } = board.finish(sim, [[0, 1]], fakeRecord('house', 1800), 10);
+  record.finishTick = 1;
+  board.runs[0].finishTick = 2;
+  board.top[0].inputs!.push([3, 2]);
+  expect(board.meta.runCounter).toBe(1);
+  expect(board.meta.settings.sound).toBe(true);
+  expect(board.last?.finishTick).toBe(1700);
+  expect(board.champion?.inputs).toEqual([[0, 1]]);
+  expect(new Board(store, 'v1', () => '2026-11-20').runs).toEqual(board.runs);
+});

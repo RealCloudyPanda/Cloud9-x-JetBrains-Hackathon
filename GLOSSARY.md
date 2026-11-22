@@ -112,3 +112,6 @@ _Avoid_: scoreboard page, second screen app.
 **Initials**
 The three letters a player enters after a Run.
 _Avoid_: name, username, tag.
+
+**Board**
+The active day's Runs and Relay statistics, viewed for the current Course Version. The Board owns Turn persistence, Initials updates, calendar rollover and operator resets through the KV seam; retired Course Versions stay in exports but cannot become current rivals or records.

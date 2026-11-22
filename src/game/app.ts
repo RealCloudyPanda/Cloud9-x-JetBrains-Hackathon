@@ -337,12 +337,11 @@ export class App {
       this.opConfirm = false;
       this.liveRun = null;
       this.publishLiveRun();
-    } else if (id === 'sound') s.sound = !s.sound;
-    else if (id === 'shake') s.shake = !s.shake;
-    else if (id === 'house') s.forceHouse = !s.forceHouse;
+    } else if (id === 'sound') this.board.settings({ sound: !s.sound });
+    else if (id === 'shake') this.board.settings({ shake: !s.shake });
+    else if (id === 'house') this.board.settings({ forceHouse: !s.forceHouse });
     else if (id === 'export') this.exportDay();
     else if (id === 'close') return this.booth.closeOperator();
-    this.board.settings(s);
     this.applySettings();
   }
 
