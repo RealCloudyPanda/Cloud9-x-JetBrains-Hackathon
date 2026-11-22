@@ -56,7 +56,7 @@ async function boot(): Promise<void> {
       : state === 'submitted' ? `Relay handed to ${app.result?.record.initials}. Next player races your ghost.`
       : state === 'initials' ? `Sign your ghost · ${app.initials.text} · letter ${app.initials.slot + 1}`
       : state === 'results' ? app.result?.verdict.map(p => p.text).join('') ?? 'Results'
-      : state === 'operator' ? operatorStatus(app.meta.settings, app.opFocus, app.opConfirm)
+      : state === 'operator' ? operatorStatus(app.meta.settings, app.operator.focus, app.operator.confirm)
       : state === 'countdown' ? 'Get ready · lime is YOU · cyan is your rival' : 'Running · lime is YOU';
     if (next !== previous) { status.textContent = next; previous = next; }
     storage.textContent = app.persistent ? '' : 'SESSION ONLY · runs survive here until this tab closes. Export in Operator. Spectator sync unavailable.';

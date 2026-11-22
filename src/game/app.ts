@@ -15,6 +15,7 @@ import { openChannel, saveLiveRun, type LiveRun } from '../booth/broadcast';
 import houseJson from './houseGhost.json';
 import { RunState } from './run';
 import { InitialsEntry } from './initialsEntry';
+import { OperatorMenu, type OperatorItemId } from './operatorMenu';
 import { GhostRunner, verifyGhost } from './ghost';
 import type { Input, Press } from './input';
 import { W, H, GROUND_Y } from './canvas';
@@ -29,7 +30,7 @@ import { drawAttract } from './screens/attract';
 import { drawCountdown } from './screens/countdown';
 import { drawResults } from './screens/results';
 import { drawInitials, drawSubmitted } from './screens/initials';
-import { drawOperator, OPERATOR_ITEMS } from './screens/operator';
+import { drawOperator } from './screens/operator';
 import { Synth } from '../audio/synth';
 
 export const ZOOM = 1.4;
@@ -64,8 +65,7 @@ export class App {
   lastGate = -1;
   result: Result | null = null;
   readonly initials = new InitialsEntry();
-  opFocus = 0;
-  opConfirm = false;
+  readonly operator = new OperatorMenu();
   finishAt = 0;
   private ghostDrawer = new GhostDrawer();
   private attractDrawer = new GhostDrawer();
@@ -162,10 +162,7 @@ export class App {
       this.fx.reset();
       this.resetAttract();
     }
-    if (s === 'operator') {
-      this.opFocus = 0;
-      this.opConfirm = false;
-    }
+    if (s === 'operator') this.operator.reset();
   }
 
   tick(): void {
@@ -294,29 +291,21 @@ export class App {
   private operatorPress(p: Press): void {
     if (p.kind === 'slide-release') return;
     this.booth.touch();
-    if (p.code === 'Escape') return this.booth.closeOperator();
-    if (p.code === 'ArrowDown') this.opFocus = (this.opFocus + 1) % OPERATOR_ITEMS.length;
-    else if (p.code === 'ArrowUp') this.opFocus = (this.opFocus + OPERATOR_ITEMS.length - 1) % OPERATOR_ITEMS.length;
-    else if (p.code === 'Enter' || p.code === 'Space') this.operatorAction(OPERATOR_ITEMS[this.opFocus].id);
-    if (OPERATOR_ITEMS[this.opFocus].id !== 'newday') this.opConfirm = false;
+    const id = this.operator.press(p);
+    if (id) this.operatorAction(id);
   }
 
-  private operatorAction(id: string): void {
+  private operatorAction(id: OperatorItemId): void {
     const s = this.meta.settings;
+    if (id === 'close') return this.booth.closeOperator();
     if (id === 'newday') {
-      if (!this.opConfirm) {
-        this.opConfirm = true;
-        return;
-      }
       this.board.newDay();
-      this.opConfirm = false;
       this.liveRun = null;
       this.publishLiveRun();
     } else if (id === 'sound') this.board.settings({ sound: !s.sound });
     else if (id === 'shake') this.board.settings({ shake: !s.shake });
     else if (id === 'house') this.board.settings({ forceHouse: !s.forceHouse });
     else if (id === 'export') this.exportDay();
-    else if (id === 'close') return this.booth.closeOperator();
     this.applySettings();
   }
 
@@ -409,7 +398,7 @@ export class App {
         sample: this.rival.kind === 'house',
         reducedMotion: this.reducedMotion,
       });
-      if (state === 'operator') drawOperator(ctx, this.meta.settings, this.opFocus, this.opConfirm, this.meta.currentDay, this.meta.runCounter);
+      if (state === 'operator') drawOperator(ctx, this.meta.settings, this.operator.focus, this.operator.confirm, this.meta.currentDay, this.meta.runCounter);
     }
     ctx.restore();
   }
