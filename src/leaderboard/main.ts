@@ -3,12 +3,13 @@ import '@fontsource/chakra-petch/700.css';
 import '@fontsource/jetbrains-mono/600.css';
 import '@fontsource/jetbrains-mono/700.css';
 import './style.css';
-import { dateKey, loadMeta, loadRuns, topRuns, META_KEY, RUNS_PREFIX } from '../booth/storage';
+import { dateKey, META_KEY, RUNS_PREFIX } from '../booth/storage';
 import { LIVE_KEY, STATUS_KEY, loadBoothStatus, loadLiveRun, openChannel } from '../booth/broadcast';
 import { COURSE } from '../sim/course';
 import { courseVersion } from '../sim/courseVersion';
 import { formatDelta, formatTime } from '../sim/splits';
 
+import { Board } from '../booth/board';
 import { MemoryKV } from '../booth/memoryKv';
 import type { KV } from '../booth/storage';
 
@@ -18,7 +19,7 @@ function sampleKv(): KV {
   const kv = new MemoryKV();
   const day = dateKey(new Date());
   const names = ['JBA', 'KAT', 'ZED', 'MOX', 'RIO', 'ACE', 'LUM', 'PIX', 'NOA', 'VEX', '???'];
-  const runs = names.map((initials, i) => ({ id: `${day}-${i + 1}`, initials, courseVersion: '', finishTick: 1500 + ((i * 97) % 420), dnf: false, splits: [], gateHashes: [], hits: [], perfects: [], hitKinds: [], inputs: null, rivalId: null, beatRival: i % 3 !== 0, createdAt: i }));
+  const runs = names.map((initials, i) => ({ id: `${day}-${i + 1}`, initials, courseVersion: courseVersion(COURSE), finishTick: 1500 + ((i * 97) % 420), dnf: false, splits: [], gateHashes: [], hits: [], perfects: [], hitKinds: [], inputs: null, rivalId: null, beatRival: i % 3 !== 0, createdAt: i }));
   kv.setItem(RUNS_PREFIX + day, JSON.stringify(runs));
   kv.setItem(META_KEY, JSON.stringify({ currentDay: day, runCounter: runs.length, relayStreak: 3, bestStreak: 4, settings: {} }));
   return kv;
@@ -30,6 +31,7 @@ function monitorStore(): KV {
   catch { storageAvailable = false; return new MemoryKV(); }
 }
 const store = monitorStore();
+const board = new Board(store, courseVersion(COURSE));
 const LABELS = ['G1', 'G2', 'G3', 'G4', 'G5', 'FIN'];
 let lastTopId = '';
 
@@ -46,11 +48,11 @@ function gatesHtml(deltas: (number | null)[]): string {
 }
 
 function render(): void {
-  const meta = loadMeta(store, dateKey(new Date()));
+  board.refresh();
+  const meta = board.meta;
   const live = SAMPLE ? { rival: 'KAT', deltas: [-14, -5, 22, null, null, null] } : loadLiveRun(store, meta.currentDay);
-  const runs = loadRuns(store, meta.currentDay).filter(r => SAMPLE || r.courseVersion === courseVersion(COURSE));
-  const top = topRuns(runs, 10);
-  const last = runs[runs.length - 1];
+  const top = board.top;
+  const last = board.last;
   const freshId = top[0]?.id !== lastTopId ? top[0]?.id : '';
   lastTopId = top[0]?.id ?? '';
   const rows = top.length

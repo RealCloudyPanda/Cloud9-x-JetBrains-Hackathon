@@ -6,12 +6,12 @@ import { FP } from '../sim/fixed';
 import { MASK_SLIDE } from '../sim/tuning';
 import { Booth, type BoothState } from '../booth/stateMachine';
 import { TIMERS } from '../booth/timers';
-import { appendRun, dateKey, loadMeta, loadRuns, saveMeta, startNewDay, topRuns, updateRun, type KV, type Meta } from '../booth/storage';
-import { pickRival, type RivalChoice } from '../booth/rival';
-import { recordFromSim, type GhostRecord } from '../booth/record';
-import { nextStreak } from '../booth/streak';
+import type { KV } from '../booth/storage';
+import { Board } from '../booth/board';
+import { type RivalChoice } from '../booth/rival';
+import { type GhostRecord } from '../booth/record';
 import { verdict, type VerdictPart } from '../booth/verdict';
-import { cleanInitials, cycleLetter } from '../booth/initials';
+import { cycleLetter } from '../booth/initials';
 import { openChannel, saveLiveRun, type LiveRun } from '../booth/broadcast';
 import houseJson from './houseGhost.json';
 import { RunState } from './run';
@@ -53,8 +53,9 @@ export class App {
   readonly booth: Booth;
   readonly synth = new Synth();
   readonly fx = new Fx();
-  meta: Meta;
-  runs: GhostRecord[];
+  readonly board: Board;
+  get meta() { return this.board.meta; }
+  get runs() { return this.board.runs; }
   run: RunState | null = null;
   ghost: GhostRunner | null = null;
   rival: RivalChoice;
@@ -81,8 +82,7 @@ export class App {
   constructor(private ctx: CanvasRenderingContext2D, private input: Input, private kv: KV, private clock: () => number, syncBoard = true) {
     this.channel = syncBoard ? openChannel() : null;
     this.booth = new Booth(clock, { enter: (s, from) => this.onEnter(s, from), autoSubmit: () => this.submitInitials(true) });
-    this.meta = loadMeta(kv, dateKey(new Date()));
-    this.runs = loadRuns(kv, this.meta.currentDay);
+    this.board = new Board(kv, VERSION);
     this.rival = this.chooseRival(false);
     this.attract = new GhostRunner(COURSE, this.rival.record);
     this.applySettings();
@@ -110,20 +110,11 @@ export class App {
   }
 
   private chooseRival(champion: boolean): RivalChoice {
-    return pickRival(this.runs, {
-      champion,
-      version: VERSION,
-      house: HOUSE,
-      forceHouse: this.meta.settings.forceHouse,
-      verify: (r) => verifyGhost(COURSE, r),
-    });
+    return this.board.rival(champion, HOUSE, r => verifyGhost(COURSE, r));
   }
 
   private refreshDay(): void {
-    const today = dateKey(new Date());
-    if (this.meta.currentDay.split('~')[0] === today) return;
-    this.meta = loadMeta(this.kv, today);
-    this.runs = loadRuns(this.kv, this.meta.currentDay);
+    this.board.refreshDay();
     this.applySettings();
   }
 
@@ -139,8 +130,7 @@ export class App {
       this.refreshDay();
       this.rival = this.chooseRival(this.booth.champion);
       if (this.meta.settings.forceHouse) {
-        this.meta.settings.forceHouse = false;
-        saveMeta(this.kv, this.meta);
+        this.board.settings({ forceHouse: false });
       }
       this.run = new RunState(COURSE);
       this.ghost = new GhostRunner(COURSE, this.rival.record);
@@ -284,22 +274,7 @@ export class App {
   private finishRun(now: number): void {
     const run = this.run!;
     const rival = this.rival.record;
-    const prevBest = topRuns(this.runs.filter(r => r.courseVersion === VERSION), 1)[0];
-    const beat = !run.sim.dnf && (rival.dnf || run.sim.finishTick < rival.finishTick - 1);
-    this.meta.runCounter++;
-    const record = recordFromSim(run.sim, run.rec.log, {
-      id: `${this.meta.currentDay}-${this.meta.runCounter}`,
-      initials: '???',
-      courseVersion: VERSION,
-      rivalId: rival.id,
-      beatRival: beat,
-      createdAt: Date.now(),
-    });
-    this.meta.relayStreak = nextStreak(this.meta.relayStreak, beat);
-    this.meta.bestStreak = Math.max(this.meta.bestStreak, this.meta.relayStreak);
-    saveMeta(this.kv, this.meta);
-    this.runs = appendRun(this.kv, this.meta.currentDay, record);
-    const newBest = !record.dnf && (!prevBest || record.finishTick < prevBest.finishTick);
+    const { record, newBest } = this.board.finish(run.sim, run.rec.log, rival, Date.now());
     this.result = { record, rival, verdict: verdict(record, rival).parts, newBest };
     this.finishAt = now;
     this.synth.play(newBest ? 'best' : 'finish');
@@ -336,9 +311,7 @@ export class App {
 
   submitInitials(auto: boolean): void {
     if (!this.result) return;
-    const initials = auto ? '???' : cleanInitials(this.letters.join(''));
-    this.result.record.initials = initials;
-    this.runs = updateRun(this.kv, this.meta.currentDay, this.result.record.id, { initials });
+    this.board.initials(this.result.record, auto ? '???' : this.letters.join(''));
     this.notifyBoard();
     if (!auto) this.booth.initialsDone();
   }
@@ -360,8 +333,7 @@ export class App {
         this.opConfirm = true;
         return;
       }
-      this.meta = startNewDay(this.kv, this.meta, dateKey(new Date()));
-      this.runs = [];
+      this.board.newDay();
       this.opConfirm = false;
       this.liveRun = null;
       this.publishLiveRun();
@@ -370,7 +342,7 @@ export class App {
     else if (id === 'house') s.forceHouse = !s.forceHouse;
     else if (id === 'export') this.exportDay();
     else if (id === 'close') return this.booth.closeOperator();
-    saveMeta(this.kv, this.meta);
+    this.board.settings(s);
     this.applySettings();
   }
 
@@ -450,7 +422,7 @@ export class App {
       this.attractDrawer.draw(ctx, { sx: gx - camX, y: g.y(alpha), sliding: g.sim.r.sliding === 1, airborne: g.sim.r.grounded === 0, scaleY: 1, phase: g.sim.tick / 60 }, gx, camX, this.rival.record.initials);
       ctx.restore();
       ctx.save();
-      const champ = topRuns(this.runs.filter((r) => r.courseVersion === VERSION && r.inputs), 1)[0];
+      const champ = this.board.champion;
       drawAttract(ctx, {
         rivalInitials: this.rival.record.initials,
         rivalTicks: this.rival.record.finishTick,
