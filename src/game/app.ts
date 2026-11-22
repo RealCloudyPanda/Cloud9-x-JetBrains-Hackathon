@@ -1,7 +1,7 @@
 import { SessionKV } from '../booth/sessionKv';
 import { COURSE } from '../sim/course';
 import { courseVersion } from '../sim/courseVersion';
-import { gateDelta, segmentDeltas } from '../sim/splits';
+import { gateDelta } from '../sim/splits';
 import { FP } from '../sim/fixed';
 import { MASK_SLIDE } from '../sim/tuning';
 import { Booth, type BoothState } from '../booth/stateMachine';
@@ -10,12 +10,13 @@ import type { KV } from '../booth/storage';
 import { Board } from '../booth/board';
 import { type RivalChoice } from '../booth/rival';
 import { type GhostRecord } from '../booth/record';
-import { verdict, type VerdictPart } from '../booth/verdict';
+import { verdict } from '../booth/verdict';
 import { openChannel } from '../booth/broadcast';
 import { LiveFeed } from '../booth/liveFeed';
 import { downloadDay } from '../booth/exportDay';
 import houseJson from './houseGhost.json';
 import { RunState } from './run';
+import { resultsView, type RunResult } from './runResult';
 import { RunEffects } from './runEffects';
 import { InitialsEntry } from './initialsEntry';
 import { OperatorMenu, type OperatorItemId } from './operatorMenu';
@@ -41,13 +42,6 @@ import { Synth } from '../audio/synth';
 const HOUSE = houseJson as unknown as GhostRecord;
 const VERSION = courseVersion(COURSE);
 
-interface Result {
-  record: GhostRecord;
-  rival: GhostRecord;
-  verdict: VerdictPart[];
-  newBest: boolean;
-}
-
 export class App {
   readonly booth: Booth;
   readonly synth = new Synth();
@@ -62,7 +56,7 @@ export class App {
   attract: GhostRunner;
   chips: Chip[] = [];
   lastGate = -1;
-  result: Result | null = null;
+  result: RunResult | null = null;
   readonly initials = new InitialsEntry();
   readonly operator = new OperatorMenu();
   finishAt = 0;
@@ -342,23 +336,7 @@ export class App {
   }
 
   private drawResult(now: number): void {
-    const res = this.result!;
-    const rec = res.record;
-    const segTicks = rec.splits.map((s, i) => (s < 0 ? 0 : s - (i === 0 ? 0 : rec.splits[i - 1])));
-    drawResults(this.ctx, {
-      ageMs: this.reducedMotion ? 10000 : now - this.finishAt,
-      finishTick: rec.finishTick,
-      dnf: rec.dnf,
-      rivalInitials: res.rival.initials,
-      overall: res.rival.dnf ? null : rec.finishTick - res.rival.finishTick,
-      segDeltas: segmentDeltas(rec.splits, res.rival.splits),
-      segTicks,
-      labels: COURSE.gateLabels,
-      verdict: res.verdict,
-      hits: rec.hits.reduce((a, b) => a + b, 0),
-      perfects: rec.perfects.reduce((a, b) => a + b, 0),
-      newBest: res.newBest,
-      canSkip: this.booth.elapsed >= TIMERS.resultsGuard,
-    });
+    const ageMs = this.reducedMotion ? 10000 : now - this.finishAt;
+    drawResults(this.ctx, resultsView(this.result!, COURSE.gateLabels, ageMs, this.booth.elapsed >= TIMERS.resultsGuard));
   }
 }
