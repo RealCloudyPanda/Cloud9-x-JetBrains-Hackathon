@@ -13,6 +13,7 @@ import { type GhostRecord } from '../booth/record';
 import { verdict, type VerdictPart } from '../booth/verdict';
 import { openChannel } from '../booth/broadcast';
 import { LiveFeed } from '../booth/liveFeed';
+import { downloadDay } from '../booth/exportDay';
 import houseJson from './houseGhost.json';
 import { RunState } from './run';
 import { RunEffects } from './runEffects';
@@ -252,17 +253,8 @@ export class App {
     } else if (id === 'sound') this.board.settings({ sound: !s.sound });
     else if (id === 'shake') this.board.settings({ shake: !s.shake });
     else if (id === 'house') this.board.settings({ forceHouse: !s.forceHouse });
-    else if (id === 'export') this.exportDay();
+    else if (id === 'export') downloadDay({ day: this.meta.currentDay, courseVersion: VERSION, runs: this.runs });
     this.applySettings();
-  }
-
-  private exportDay(): void {
-    const blob = new Blob([JSON.stringify({ day: this.meta.currentDay, courseVersion: VERSION, runs: this.runs }, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `ghost-relay-${this.meta.currentDay}.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
   frame(alpha: number, dt: number): void {
