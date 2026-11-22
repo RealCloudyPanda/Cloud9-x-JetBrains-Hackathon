@@ -11,10 +11,10 @@ import { Board } from '../booth/board';
 import { type RivalChoice } from '../booth/rival';
 import { type GhostRecord } from '../booth/record';
 import { verdict, type VerdictPart } from '../booth/verdict';
-import { cycleLetter } from '../booth/initials';
 import { openChannel, saveLiveRun, type LiveRun } from '../booth/broadcast';
 import houseJson from './houseGhost.json';
 import { RunState } from './run';
+import { InitialsEntry } from './initialsEntry';
 import { GhostRunner, verifyGhost } from './ghost';
 import type { Input, Press } from './input';
 import { W, H, GROUND_Y } from './canvas';
@@ -63,8 +63,7 @@ export class App {
   chips: Chip[] = [];
   lastGate = -1;
   result: Result | null = null;
-  letters = ['A', 'A', 'A'];
-  slot = 0;
+  readonly initials = new InitialsEntry();
   opFocus = 0;
   opConfirm = false;
   finishAt = 0;
@@ -73,7 +72,6 @@ export class App {
   private channel: BroadcastChannel | null;
   private liveRun: LiveRun | null = null;
   private lastCam = 0;
-  private initialsSlideUsed = false;
   private countdownStep = 0;
   reducedMotion = false;
   frozenNow: number | null = null;
@@ -150,9 +148,7 @@ export class App {
     }
     if (s === 'initials') {
       this.input.clear();
-      this.letters = ['A', 'A', 'A'];
-      this.slot = 0;
-      this.initialsSlideUsed = false;
+      this.initials.reset();
     }
     if (s === 'attract') {
       if (from === 'run') {
@@ -285,33 +281,12 @@ export class App {
 
   initialsPress(p: Press): void {
     this.booth.touch();
-    const code = p.code;
-    if (p.kind === 'slide-release') {
-      if (!this.initialsSlideUsed && code !== 'Mouse2') this.letters[this.slot] = cycleLetter(this.letters[this.slot], 1);
-      this.initialsSlideUsed = false;
-      return;
-    }
-    if (p.kind === 'slide') {
-      this.initialsSlideUsed = false;
-      if (code === 'Mouse2') this.letters[this.slot] = cycleLetter(this.letters[this.slot], 1);
-      return;
-    }
-    const twoButtonConfirm = p.kind === 'jump' && (p.mask & MASK_SLIDE) !== 0;
-    if (twoButtonConfirm) this.initialsSlideUsed = true;
-    if (twoButtonConfirm || code === 'Space' || code === 'ArrowRight' || code === 'Enter' || code === 'NumpadEnter' || code === 'Mouse0') {
-      if (this.slot < 2) this.slot++;
-      else this.submitInitials(false);
-    } else if (code === 'ArrowUp' || code === 'KeyW') this.letters[this.slot] = cycleLetter(this.letters[this.slot], -1);
-    else if (code === 'ArrowLeft' || code === 'Backspace') this.slot = Math.max(0, this.slot - 1);
-    else if (/^Key[A-Z]$/.test(code)) {
-      this.letters[this.slot] = code.slice(3);
-      if (this.slot < 2) this.slot++;
-    }
+    if (this.initials.press(p) === 'submit') this.submitInitials(false);
   }
 
   submitInitials(auto: boolean): void {
     if (!this.result) return;
-    this.board.initials(this.result.record, auto ? '???' : this.letters.join(''));
+    this.board.initials(this.result.record, auto ? '???' : this.initials.text);
     this.notifyBoard();
     if (!auto) this.booth.initialsDone();
   }
@@ -408,7 +383,7 @@ export class App {
       }
       if (state === 'results' && this.result) this.drawResult(now);
       if (state === 'initials' && this.result) {
-        drawInitials(ctx, { letters: this.letters, slot: this.slot, finishTick: this.result.record.finishTick, dnf: this.result.record.dnf, idleFrac: Math.min(1, (this.clock() - this.booth.lastInputAt) / TIMERS.initialsIdle) });
+        drawInitials(ctx, { letters: this.initials.letters, slot: this.initials.slot, finishTick: this.result.record.finishTick, dnf: this.result.record.dnf, idleFrac: Math.min(1, (this.clock() - this.booth.lastInputAt) / TIMERS.initialsIdle) });
       }
       if (state === 'submitted' && this.result) drawSubmitted(ctx, this.result.record.initials, this.reducedMotion ? 10000 : this.booth.elapsed, this.persistent);
     } else {

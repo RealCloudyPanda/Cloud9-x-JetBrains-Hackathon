@@ -54,7 +54,7 @@ async function boot(): Promise<void> {
     const state = app.booth.state;
     const next = state === 'attract' ? `Ready · ${app.rival.kind === 'house' ? 'Starter house ghost' : 'Last player'} ${app.rival.record.initials}`
       : state === 'submitted' ? `Relay handed to ${app.result?.record.initials}. Next player races your ghost.`
-      : state === 'initials' ? `Sign your ghost · ${app.letters.join('')} · letter ${app.slot + 1}`
+      : state === 'initials' ? `Sign your ghost · ${app.initials.text} · letter ${app.initials.slot + 1}`
       : state === 'results' ? app.result?.verdict.map(p => p.text).join('') ?? 'Results'
       : state === 'operator' ? operatorStatus(app.meta.settings, app.opFocus, app.opConfirm)
       : state === 'countdown' ? 'Get ready · lime is YOU · cyan is your rival' : 'Running · lime is YOU';

@@ -29,8 +29,8 @@ export function applyScene(app: App, scene: string): void {
   app.finishAt = t0 - 2500;
   if (scene === 'initials') {
     app.booth.state = 'initials';
-    app.letters = ['J', 'B', 'A'];
-    app.slot = 2;
+    app.initials.letters = ['J', 'B', 'A'];
+    app.initials.slot = 2;
   }
   app.booth.enteredAt = t0 - 2500;
   app.booth.lastInputAt = t0 - 3000;
