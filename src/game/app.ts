@@ -15,6 +15,7 @@ import { openChannel } from '../booth/broadcast';
 import { LiveFeed } from '../booth/liveFeed';
 import houseJson from './houseGhost.json';
 import { RunState } from './run';
+import { RunEffects } from './runEffects';
 import { InitialsEntry } from './initialsEntry';
 import { OperatorMenu, type OperatorItemId } from './operatorMenu';
 import { GhostRunner, verifyGhost } from './ghost';
@@ -55,6 +56,7 @@ export class App {
   readonly booth: Booth;
   readonly synth = new Synth();
   readonly fx = new Fx();
+  private readonly effects = new RunEffects(this.fx, this.synth);
   readonly board: Board;
   get meta() { return this.board.meta; }
   get runs() { return this.board.runs; }
@@ -199,47 +201,14 @@ export class App {
     const ghost = this.ghost!;
     run.tick(this.maskOverride ? this.maskOverride(run.sim) : this.input.mask, now);
     ghost.tick();
-    const fx = this.fx;
-    const ry = GROUND_Y - run.sim.r.y / FP;
-    const rx = CAMERA_X / ZOOM;
+    const anchor = { x: CAMERA_X / ZOOM, y: GROUND_Y - run.sim.r.y / FP, now };
     for (const e of run.sim.events) {
-      switch (e.type) {
-        case 'jump':
-          fx.stretchAt = now;
-          this.synth.play('jump');
-          break;
-        case 'land':
-          fx.squashAt = now;
-          fx.burst(rx + 14, GROUND_Y - 2, 4, C.text2, 160);
-          this.synth.play('land');
-          break;
-        case 'slide':
-          fx.burst(rx + 30, GROUND_Y - 2, 6, C.text2, 220);
-          this.synth.play('slide');
-          break;
-        case 'perfect':
-          fx.word('PERFECT', rx + 14, ry - 70, now, C.lime);
-          fx.ring(rx + 14, ry - 24, now);
-          fx.burst(rx + 14, ry - 24, 14, C.lime, 380);
-          this.synth.play('perfect');
-          break;
-        case 'hit':
-          fx.shake(now, 6, 120);
-          fx.flashAt = now;
-          fx.burst(rx + 28, ry - 24, 12, C.orange, 320);
-          this.synth.play('hit');
-          break;
-        case 'gate': {
-          const d = gateDelta(run.sim.splits, ghost.record.splits, e.gate);
-          if (d !== null) this.chips.push({ gate: e.gate, delta: d, worldX: COURSE.gates[e.gate], at: now });
-          this.lastGate = e.gate;
-          this.synth.play('gate');
-          this.feed.gate(e.gate, d);
-          break;
-        }
-        default:
-          break;
-      }
+      this.effects.play(e, anchor);
+      if (e.type !== 'gate') continue;
+      const d = gateDelta(run.sim.splits, ghost.record.splits, e.gate);
+      if (d !== null) this.chips.push({ gate: e.gate, delta: d, worldX: COURSE.gates[e.gate], at: now });
+      this.lastGate = e.gate;
+      this.feed.gate(e.gate, d);
     }
     if (run.sim.finished) this.finishRun(now);
   }
