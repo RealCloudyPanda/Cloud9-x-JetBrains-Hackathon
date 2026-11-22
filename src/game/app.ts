@@ -29,19 +29,14 @@ import { GhostDrawer } from './render/ghost';
 import { drawHud, type Chip } from './render/hud';
 import { Fx } from './render/fx';
 import { C } from './render/theme';
+import { applyZoom, ZOOM } from './render/camera';
+import { drawSpeedLines } from './render/speedLines';
 import { drawAttract } from './screens/attract';
 import { drawCountdown } from './screens/countdown';
 import { drawResults } from './screens/results';
 import { drawInitials, drawSubmitted } from './screens/initials';
 import { drawOperator } from './screens/operator';
 import { Synth } from '../audio/synth';
-
-export const ZOOM = 1.4;
-function zoom(ctx: CanvasRenderingContext2D): void {
-  ctx.translate(0, GROUND_Y);
-  ctx.scale(ZOOM, ZOOM);
-  ctx.translate(0, -GROUND_Y);
-}
 
 const HOUSE = houseJson as unknown as GhostRecord;
 const VERSION = courseVersion(COURSE);
@@ -88,6 +83,10 @@ export class App {
     this.attract = new GhostRunner(COURSE, this.rival.record);
     this.applySettings();
     input.onAnyPress = () => this.synth.unlock();
+  }
+
+  private get motionEnabled(): boolean {
+    return !this.reducedMotion && this.meta.settings.shake;
   }
 
   get persistent(): boolean { return !(this.kv instanceof SessionKV) || this.kv.persistent; }
@@ -273,7 +272,7 @@ export class App {
       const camDx = camX - this.lastCam;
       this.lastCam = camX;
       drawBackground(ctx, camX, run.sim.flow);
-      zoom(ctx);
+      applyZoom(ctx);
       drawWorld(ctx, { course: COURSE, camX, tick: run.sim.tick, obsState: run.sim.obsState, beams: run.sim.beams, hitAt: run.hitAt, now });
       const ghost = this.ghost;
       if (ghost && !ghost.rejected) {
@@ -293,7 +292,7 @@ export class App {
       ctx.fillStyle = C.lime;
       ctx.fillText('YOU ▼', CAMERA_X / ZOOM + 14, GROUND_Y - run.y(alpha) - (run.sim.r.sliding ? 38 : 64));
       ctx.restore();
-      this.drawSpeedLines(ctx, run.sim.flow, camX);
+      if (this.motionEnabled) drawSpeedLines(ctx, run.sim.flow, camX);
       this.fx.draw(ctx, now, dt, state === 'run' ? camDx : 0);
       ctx.restore();
       ctx.save();
@@ -319,7 +318,7 @@ export class App {
       const gx = g.x(alpha);
       const camX = gx - (CAMERA_X + 360) / ZOOM;
       drawBackground(ctx, camX, g.sim.flow);
-      zoom(ctx);
+      applyZoom(ctx);
       drawWorld(ctx, { course: COURSE, camX, tick: g.sim.tick, obsState: g.sim.obsState, beams: g.sim.beams, hitAt: [], now });
       this.attractDrawer.draw(ctx, { sx: gx - camX, y: g.y(alpha), sliding: g.sim.r.sliding === 1, airborne: g.sim.r.grounded === 0, scaleY: 1, phase: g.sim.tick / 60 }, gx, camX, this.rival.record.initials);
       ctx.restore();
@@ -340,21 +339,6 @@ export class App {
       if (state === 'operator') drawOperator(ctx, this.meta.settings, this.operator.focus, this.operator.confirm, this.meta.currentDay, this.meta.runCounter);
     }
     ctx.restore();
-  }
-
-  private drawSpeedLines(ctx: CanvasRenderingContext2D, flow: number, camX: number): void {
-    if (this.reducedMotion || !this.meta.settings.shake || flow <= 1050) return;
-    const n = Math.floor((flow - 1000) / 40);
-    ctx.strokeStyle = 'oklch(0.95 0.01 250 / 0.12)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let i = 0; i < n; i++) {
-      const y = 180 + ((i * 137) % 380);
-      const x = W - ((camX * 2.4 + i * 211) % (W + 200));
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + 60 + (flow - 1000) / 4, y);
-    }
-    ctx.stroke();
   }
 
   private drawResult(now: number): void {
